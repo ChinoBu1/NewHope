@@ -1,10 +1,12 @@
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Polynomial {
-    private ArrayList<Integer> coef;
-    private int grado;
+    private final ArrayList<Integer> coef;
+    private final int grado;
 
     public Polynomial() {
         this.coef = new ArrayList<Integer>();
@@ -99,7 +101,11 @@ public class Polynomial {
     public static Polynomial PolyModInt(Polynomial a, int q) {
         ArrayList<Integer> resultcoef = new ArrayList<Integer>();
         for (Integer integer : a.GetCoef()) {
-            resultcoef.add(integer % q);
+            if (integer % q < 0) {
+                resultcoef.add(integer % q + q);
+            } else {
+                resultcoef.add(integer % q);
+            }
         }
         Polynomial b = new Polynomial(resultcoef);
         return b;
@@ -121,9 +127,35 @@ public class Polynomial {
             coef_t.add(temp2);
             Polynomial t = new Polynomial(coef_t);
             q = SumPoly(q, t);
-            r = SumPoly(r, MultPoly(F, EscalarPoly(-1, t)));
+            r = SumPoly(r, EscalarPoly(-1, MultPoly(F, t)));
         }
         return r;
+    }
+
+    public static Polynomial hint(Polynomial a, int q) throws NoSuchAlgorithmException {
+        SecureRandom random = SecureRandom.getInstance("Windows-PRNG");
+        int b = random.nextInt(2);
+        ArrayList<Integer> coef_a = a.GetCoef();
+        ArrayList<Integer> coef_r = new ArrayList<Integer>();
+        if (b == 0) {
+            for (Integer integer : coef_a) {
+                if (integer >= q - q / 4 || integer <= q / 4) {
+                    coef_r.add(0);
+                } else {
+                    coef_r.add(1);
+                }
+            }
+        } else {
+            for (Integer integer : coef_a) {
+                if (integer >= q - q / 4 + 1 || integer <= q / 4 + 1) {
+                    coef_r.add(0);
+                } else {
+                    coef_r.add(1);
+                }
+            }
+        }
+        Polynomial result = new Polynomial(coef_r);
+        return result;
     }
 
     @Override
@@ -134,26 +166,21 @@ public class Polynomial {
             if (temp == 0)
                 continue;
             if (i == 0) {
-                p = p + String.format("%d", temp);
+                p = p + String.format("%d ", temp);
             } else {
                 if (temp == 1) {
                     if (p.equals("")) {
-                        p = p + String.format("x^%d", i);
+                        p = p + String.format("x^%d ", i);
                     } else {
-                        p = p + String.format("+x^%d", i);
+                        p = p + String.format("+x^%d ", i);
                     }
-
                 } else if (temp == -1) {
-                    if (p.equals("")) {
-                        p = p + String.format("x^%d", i);
-                    } else {
-                        p = p + String.format("-x^%d", i);
-                    }
+                    p = p + String.format("-x^%d ", i);
                 } else {
                     if (p.equals("")) {
-                        p = p + String.format("%dx^%d", temp, i);
+                        p = p + String.format("%dx^%d ", temp, i);
                     } else {
-                        p = p + String.format("%+dx^%d", temp, i);
+                        p = p + String.format("%+dx^%d ", temp, i);
                     }
                 }
             }
@@ -162,5 +189,17 @@ public class Polynomial {
         if (p.equals(""))
             p = "0";
         return p;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Polynomial)) {
+            return false;
+        }
+        Polynomial c = (Polynomial) o;
+        return c.GetCoef().equals(this.coef);
     }
 }
