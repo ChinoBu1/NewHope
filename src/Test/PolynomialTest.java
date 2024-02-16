@@ -3,27 +3,23 @@ package Test;
 import static org.junit.Assert.assertEquals;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.junit.Test;
 
 import main.Polynomial;
+import main.RWLE;
 
 public class PolynomialTest {
 
     @Test
     public void testEqual() {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(1);
-        coef_1.add(1);
-        coef_1.add(1);
-        coef_1.add(1);
+        int[] coef_1 = new int[4];
+        Arrays.fill(coef_1, 1);
+        coef_1[3] = 0;
 
-        ArrayList<Integer> coef_2 = new ArrayList<Integer>();
-        coef_2.add(1);
-        coef_2.add(1);
-        coef_2.add(1);
-        coef_2.add(1);
+        int[] coef_2 = new int[3];
+        Arrays.fill(coef_2, 1);
 
         Polynomial p = new Polynomial(coef_1);
         Polynomial q = new Polynomial(coef_2);
@@ -31,136 +27,145 @@ public class PolynomialTest {
     }
 
     @Test
-    public void testSumPol() {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(4);
-        coef_1.add(6);
-        coef_1.add(2);
-        coef_1.add(10);
+    public void testStrng() {
+        int[] coef_1 = new int[4];
+        Arrays.fill(coef_1, 1);
 
-        ArrayList<Integer> coef_2 = new ArrayList<Integer>();
-        coef_2.add(-1);
-        coef_2.add(-1);
-        coef_2.add(0);
-        coef_2.add(-8);
+        Polynomial p = new Polynomial(coef_1);
+        assertEquals("1 +x^1 +x^2 +x^3 ", p.toString());
+    }
+
+    @Test
+    public void testSumPol() {
+        int[] coef_1 = new int[4];
+        coef_1[0] = 4;
+        coef_1[1] = 6;
+        coef_1[2] = 2;
+        coef_1[3] = 10;
+
+        int[] coef_2 = new int[4];
+        coef_2[0] = -1;
+        coef_2[1] = -1;
+        coef_2[2] = 0;
+        coef_2[3] = -8;
 
         Polynomial p = new Polynomial(coef_1);
         Polynomial q = new Polynomial(coef_2);
 
-        ArrayList<Integer> coef_result = new ArrayList<Integer>();
-        coef_result.add(3);
-        coef_result.add(5);
-        coef_result.add(2);
-        coef_result.add(2);
+        int[] coef_result = new int[4];
+        coef_result[0] = 3;
+        coef_result[1] = 5;
+        coef_result[2] = 2;
+        coef_result[3] = 2;
         assertEquals(new Polynomial(coef_result), Polynomial.SumPoly(p, q));
     }
 
     @Test
     public void testMulPol() {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(4);
-        coef_1.add(6);
-        coef_1.add(2);
+        int[] coef_1 = new int[3];
+        coef_1[0] = 4;
+        coef_1[1] = 6;
+        coef_1[2] = 2;
 
-        ArrayList<Integer> coef_2 = new ArrayList<Integer>();
-        coef_2.add(-1);
-        coef_2.add(-1);
-        coef_2.add(4);
+        int[] coef_2 = new int[3];
+        coef_2[0] = -1;
+        coef_2[1] = -1;
+        coef_2[2] = 4;
 
         Polynomial p = new Polynomial(coef_1);
         Polynomial q = new Polynomial(coef_2);
 
-        ArrayList<Integer> coef_result = new ArrayList<Integer>();
-        coef_result.add(-4);
-        coef_result.add(-10);
-        coef_result.add(8);
-        coef_result.add(22);
-        coef_result.add(8);
+        int[] coef_result = new int[5];
+        coef_result[0] = -4;
+        coef_result[1] = -10;
+        coef_result[2] = 8;
+        coef_result[3] = 22;
+        coef_result[4] = 8;
         assertEquals(new Polynomial(coef_result), Polynomial.MultPoly(p, q));
     }
 
     @Test
     public void testEscPol() {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(4);
-        coef_1.add(6);
-        coef_1.add(2);
-        coef_1.add(-2);
+        int[] coef_1 = new int[4];
+        coef_1[0] = 4;
+        coef_1[1] = 6;
+        coef_1[2] = 2;
+        coef_1[3] = -2;
 
         Polynomial p = new Polynomial(coef_1);
         int q = 4;
 
-        ArrayList<Integer> coef_result = new ArrayList<Integer>();
-        coef_result.add(16);
-        coef_result.add(24);
-        coef_result.add(8);
-        coef_result.add(-8);
+        int[] coef_result = new int[4];
+        coef_result[0] = 16;
+        coef_result[1] = 24;
+        coef_result[2] = 8;
+        coef_result[3] = -8;
         assertEquals(new Polynomial(coef_result), Polynomial.EscalarPoly(q, p));
     }
 
     @Test
     public void testPolModInt() {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(54);
-        coef_1.add(354);
-        coef_1.add(-5);
-        coef_1.add(-65);
-        coef_1.add(-362);
+        int[] coef_1 = new int[5];
+        coef_1[0] = 54;
+        coef_1[1] = 354;
+        coef_1[2] = -5;
+        coef_1[3] = -65;
+        coef_1[4] = -362;
 
         Polynomial p = new Polynomial(coef_1);
         int q = 13;
 
-        ArrayList<Integer> coef_result = new ArrayList<Integer>();
-        coef_result.add(2);
-        coef_result.add(3);
-        coef_result.add(8);
-        coef_result.add(0);
-        coef_result.add(2);
+        int[] coef_result = new int[5];
+        coef_result[0] = 2;
+        coef_result[1] = 3;
+        coef_result[2] = 8;
+        coef_result[3] = 0;
+        coef_result[4] = 2;
         assertEquals(new Polynomial(coef_result), Polynomial.PolyModInt(p, q));
     }
 
     @Test
     public void testPolModF() {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(54);
-        coef_1.add(354);
-        coef_1.add(-5);
-        coef_1.add(-62);
-        coef_1.add(-362);
+        int[] coef_1 = new int[5];
+        coef_1[0] = 54;
+        coef_1[1] = 354;
+        coef_1[2] = -5;
+        coef_1[3] = -62;
+        coef_1[4] = -362;
 
-        ArrayList<Integer> coef_2 = new ArrayList<Integer>();
-        coef_2.add(1);
-        coef_2.add(0);
-        coef_2.add(0);
-        coef_2.add(0);
-        coef_2.add(1);
+        int[] coef_2 = new int[5];
+        coef_2[0] = 1;
+        coef_2[1] = 0;
+        coef_2[2] = 0;
+        coef_2[3] = 0;
+        coef_2[4] = 1;
 
         Polynomial p = new Polynomial(coef_1);
         Polynomial q = new Polynomial(coef_2);
 
-        ArrayList<Integer> coef_result = new ArrayList<Integer>();
-        coef_result.add(416);
-        coef_result.add(354);
-        coef_result.add(-5);
-        coef_result.add(-62);
+        int[] coef_result = new int[4];
+        coef_result[0] = 416;
+        coef_result[1] = 354;
+        coef_result[2] = -5;
+        coef_result[3] = -62;
         assertEquals(new Polynomial(coef_result), Polynomial.PolyModF(p, q));
     }
 
     @Test
     public void testPolModFModInt() {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(534);
-        coef_1.add(54);
-        coef_1.add(0);
-        coef_1.add(-62);
-        coef_1.add(-362);
+        int[] coef_1 = new int[5];
+        coef_1[0] = 534;
+        coef_1[1] = 54;
+        coef_1[2] = 0;
+        coef_1[3] = -62;
+        coef_1[4] = -362;
 
-        ArrayList<Integer> coef_2 = new ArrayList<Integer>();
-        coef_2.add(1);
-        coef_2.add(0);
-        coef_2.add(0);
-        coef_2.add(0);
-        coef_2.add(1);
+        int[] coef_2 = new int[5];
+        coef_2[0] = 1;
+        coef_2[1] = 0;
+        coef_2[2] = 0;
+        coef_2[3] = 0;
+        coef_2[4] = 1;
 
         Polynomial p = new Polynomial(coef_1);
         Polynomial q = new Polynomial(coef_2);
@@ -172,21 +177,21 @@ public class PolynomialTest {
 
     @Test
     public void testSignal() throws NoSuchAlgorithmException {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(9);
-        coef_1.add(6);
-        coef_1.add(3);
-        coef_1.add(13);
+        RWLE test = new RWLE(4, 13);
+        int[] coef_1 = new int[4];
+        coef_1[0] = 9;
+        coef_1[1] = 6;
+        coef_1[2] = 3;
+        coef_1[3] = 13;
 
         Polynomial p = new Polynomial(coef_1);
-        int a = 17;
-        Polynomial q = Polynomial.hint(p, a);
+        Polynomial q = test.hint(p);
 
-        ArrayList<Integer> coef_r = new ArrayList<Integer>();
-        coef_r.add(1);
-        coef_r.add(1);
-        coef_r.add(0);
-        coef_r.add(0);
+        int[] coef_r = new int[4];
+        coef_r[0] = 1;
+        coef_r[1] = 1;
+        coef_r[2] = 0;
+        coef_r[3] = 0;
 
         Polynomial r = new Polynomial(coef_r);
 
@@ -195,28 +200,50 @@ public class PolynomialTest {
 
     @Test
     public void testExtractor() throws NoSuchAlgorithmException {
-        ArrayList<Integer> coef_1 = new ArrayList<Integer>();
-        coef_1.add(1);
-        coef_1.add(2);
-        coef_1.add(0);
-        coef_1.add(6);
-        coef_1.add(2);
+        RWLE test = new RWLE(6, 13);
+        int[] coef_1 = new int[5];
+        coef_1[0] = 1;
+        coef_1[1] = 2;
+        coef_1[2] = 0;
+        coef_1[3] = 6;
+        coef_1[4] = 2;
 
         Polynomial p = new Polynomial(coef_1);
-        int a = 13;
-        Polynomial q = Polynomial.hint(p, a);
-        Polynomial Extrac = Polynomial.PolyModInt(
-                Polynomial.PolyModInt(Polynomial.SumPoly(p, Polynomial.EscalarPoly((a - 1) / 2, q)), a),
-                2);
+        Polynomial q = test.hint(p);
+        Polynomial Extrac = test.extractor(p, q);
 
-        ArrayList<Integer> coef_2 = new ArrayList<Integer>();
-        coef_2.add(1);
-        coef_2.add(0);
-        coef_2.add(0);
-        coef_2.add(0);
-        coef_2.add(0);
+        int[] coef_2 = new int[5];
+        coef_2[0] = 1;
+        coef_2[1] = 0;
+        coef_2[2] = 0;
+        coef_2[3] = 0;
+        coef_2[4] = 0;
 
         assertEquals(new Polynomial(coef_2), Extrac);
+    }
+
+    @Test
+    public void testbyte() {
+        RWLE test = new RWLE(6, 13);
+        int[] coef_1 = new int[5];
+        coef_1[0] = 1;
+        coef_1[1] = 2;
+        coef_1[2] = 0;
+        coef_1[3] = 6;
+        coef_1[4] = 2;
+
+        Polynomial p = new Polynomial(coef_1);
+        byte[] q = test.toByteArray(p);
+        Polynomial reconstruc = test.fromByteArray(q);
+
+        int[] coef_2 = new int[5];
+        coef_2[0] = 1;
+        coef_2[1] = 0;
+        coef_2[2] = 0;
+        coef_2[3] = 0;
+        coef_2[4] = 0;
+
+        assertEquals(p, reconstruc);
     }
 
 }
