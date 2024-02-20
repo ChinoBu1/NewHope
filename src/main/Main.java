@@ -11,7 +11,7 @@ class Main {
         public static void main(String[] args) throws Exception {
 
                 int gradoPolinomiof = Integer.parseInt(args[0]);
-                int q = Integer.parseInt(args[1]);
+                long q = Long.parseLong(args[1]);
                 Double stddev = Double.parseDouble(args[2]);
                 RWLE prueba = new RWLE(gradoPolinomiof, q);
                 NewHope test = new NewHope();

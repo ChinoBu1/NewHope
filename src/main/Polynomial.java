@@ -1,30 +1,31 @@
 package main;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 
 public class Polynomial {
-    private final int[] coef;
+    private final long[] coef;
     private final int grado;
 
     public Polynomial() {
-        this.coef = new int[1];
+        this.coef = new long[1];
         this.coef[0] = 0;
         this.grado = 0;
     }
 
-    public Polynomial(int[] coef) {
-        int i = coef.length;
-        while (i > 1 && coef[i - 1] == 0) {
+    public Polynomial(long[] coef_f) {
+        int i = coef_f.length;
+        while (i > 1 && coef_f[i - 1] == 0) {
             i--;
         }
-        this.coef = new int[i];
-        System.arraycopy(coef, 0, this.coef, 0, i);
+        this.coef = new long[i];
+        System.arraycopy(coef_f, 0, this.coef, 0, i);
         ;
         this.grado = this.coef.length - 1;
 
     }
 
-    public int[] GetCoef() {
+    public long[] GetCoef() {
         return this.coef;
     }
 
@@ -32,8 +33,8 @@ public class Polynomial {
         return this.grado;
     }
 
-    public static Polynomial EscalarPoly(int a, Polynomial b) {
-        int[] resultcoef = new int[b.GetGrado() + 1];
+    public static Polynomial EscalarPoly(long a, Polynomial b) {
+        long[] resultcoef = new long[b.GetGrado() + 1];
         for (int i = 0; i <= b.GetGrado(); i++) {
             resultcoef[i] = b.GetCoef()[i] * a;
         }
@@ -42,7 +43,7 @@ public class Polynomial {
     }
 
     public static Polynomial SumPoly(Polynomial a, Polynomial b) {
-        int[] resultcoef = new int[Math.max(a.GetGrado(), b.GetGrado()) + 1];
+        long[] resultcoef = new long[Math.max(a.GetGrado(), b.GetGrado()) + 1];
         if (a.GetGrado() < b.GetGrado()) {
             Polynomial temp = a;
             a = b;
@@ -61,19 +62,19 @@ public class Polynomial {
     }
 
     public static Polynomial MultPoly(Polynomial a, Polynomial b) {
-        int[] resultcoef = new int[a.GetGrado() + b.GetGrado() + 1];
+        long[] resultcoef = new long[a.GetGrado() + b.GetGrado() + 1];
 
         int i = 0;
 
         while (i <= a.GetGrado()) {
-            int tempa = a.GetCoef()[i];
+            long tempa = a.GetCoef()[i];
             int j = 0;
             while (j <= b.GetGrado()) {
-                int tempb = b.GetCoef()[j];
+                long tempb = b.GetCoef()[j];
                 if (i == 0) {
                     resultcoef[j] = tempa * tempb;
                 } else {
-                    int valor = resultcoef[j + i] + tempa * tempb;
+                    long valor = resultcoef[j + i] + tempa * tempb;
                     resultcoef[j + i] = valor;
                 }
                 j++;
@@ -84,8 +85,8 @@ public class Polynomial {
         return c;
     }
 
-    public static Polynomial PolyModInt(Polynomial a, int q) {
-        int[] resultcoef = new int[a.GetGrado() + 1];
+    public static Polynomial PolyModInt(Polynomial a, long q) {
+        long[] resultcoef = new long[a.GetGrado() + 1];
         for (int i = 0; i <= a.GetGrado(); i++) {
             if (a.GetCoef()[i] % q < 0) {
                 resultcoef[i] = a.GetCoef()[i] % q + q;
@@ -105,8 +106,8 @@ public class Polynomial {
         }
         while (r.GetGrado() >= F.GetGrado()) {
             int temp1 = r.GetGrado() - F.GetGrado();
-            int[] coef_t = new int[temp1 + 1];
-            int temp2 = r.GetCoef()[r.GetGrado()] / F.GetCoef()[F.GetGrado()];
+            long[] coef_t = new long[temp1 + 1];
+            long temp2 = r.GetCoef()[r.GetGrado()] / F.GetCoef()[F.GetGrado()];
             for (int i = 0; i < temp1; i++) {
                 coef_t[i] = 0;
             }
@@ -122,7 +123,7 @@ public class Polynomial {
     public String toString() {
         String p = new String();
         for (int i = 0; i <= this.grado; i++) {
-            int temp = this.coef[i];
+            long temp = this.coef[i];
             if (temp == 0)
                 continue;
             if (i == 0) {

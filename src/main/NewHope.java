@@ -1,6 +1,7 @@
 
 package main;
 
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public class NewHope {
     SecureRandom random;
 
     public NewHope() {
-        int[] coef_f = new int[N + 1];
+        long[] coef_f = new long[N + 1];
         coef_f[0] = 1;
         Arrays.fill(coef_f, 1, N, 0);
         coef_f[N] = 1;
@@ -54,30 +55,27 @@ public class NewHope {
     }
 
     public Polynomial parseSeed(byte[] seed) throws Exception {
-        System.out.println(sun.security.provider.SHAKE128.class);
         KeccakSponge sponge = FIPS202.ExtendableOutputFunction.SHAKE128.withOutputLength(16);
-        int[] coef = new int[1024];
+        long[] coef = new long[1024];
         int last_coef = 0;
 
         while (last_coef < 1024) {
             byte[] hashSeed = sponge.apply(seed);
-            for (int i = 0; 2 * i + 1 < hashSeed.length; i++) {
-                int temp = ((hashSeed[2 * i] & 0xFF)) |
-                        ((hashSeed[2 * i + 1] & 0xFF) << 8);
-                if (temp < 5 * Q) {
-                    coef[last_coef] = temp;
-                    last_coef++;
-                }
-                if (last_coef >= 1024) {
-                    break;
-                }
+            int temp = ((hashSeed[0] & 0xFF)) |
+                    ((hashSeed[1] & 0xFF) << 8);
+            if (temp < 5 * Q) {
+                coef[last_coef] = temp;
+                last_coef++;
+            }
+            if (last_coef >= 1024) {
+                break;
             }
         }
         return new Polynomial(coef);
     }
 
     public Polynomial generateBinoPol() {
-        int[] coef = new int[this.N];
+        long[] coef = new long[this.N];
         for (int i = 0; i < this.N; i++) {
             coef[i] = random.nextInt(-16, 17);
         }
@@ -86,8 +84,8 @@ public class NewHope {
 
     public Polynomial hint(Polynomial a) {
         int b = random.nextInt(2);
-        int[] coef_a = a.GetCoef();
-        int[] coef_r = new int[this.N - 1];
+        long[] coef_a = a.GetCoef();
+        long[] coef_r = new long[this.N - 1];
 
         Polynomial result = new Polynomial(coef_r);
         return result;
@@ -96,28 +94,36 @@ public class NewHope {
     public byte[] toByteArray(Polynomial p) {
         byte[] f = new byte[(p.GetGrado() + 1) * 4];
         for (int i = 0; i <= p.GetGrado(); i++) {
-            f[4 * i] = (byte) p.GetCoef()[i];
-            f[4 * i + 1] = (byte) (p.GetCoef()[i] >> 8);
-            f[4 * i + 2] = (byte) (p.GetCoef()[i] >> 16);
-            f[4 * i + 3] = (byte) (p.GetCoef()[i] >> 24);
+            f[8 * i] = (byte) p.GetCoef()[i];
+            f[8 * i + 1] = (byte) (p.GetCoef()[i] >> 8);
+            f[8 * i + 2] = (byte) (p.GetCoef()[i] >> 16);
+            f[8 * i + 3] = (byte) (p.GetCoef()[i] >> 24);
+            f[8 * i + 4] = (byte) (p.GetCoef()[i] >> 32);
+            f[8 * i + 5] = (byte) (p.GetCoef()[i] >> 40);
+            f[8 * i + 6] = (byte) (p.GetCoef()[i] >> 48);
+            f[8 * i + 7] = (byte) (p.GetCoef()[i] >> 56);
         }
         return f;
     }
 
     public Polynomial fromByteArray(byte[] bytes) {
-        int[] coef = new int[this.N];
-        for (int i = 0; 4 * i + 3 < bytes.length; i++) {
-            coef[i] = ((bytes[4 * i] & 0xFF)) |
-                    ((bytes[4 * i + 1] & 0xFF) << 8) |
-                    ((bytes[4 * i + 2] & 0xFF) << 16) |
-                    ((bytes[4 * i + 3] & 0xFF) << 24);
+        long[] coef = new long[this.N];
+        for (int i = 0; 8 * i + 7 < bytes.length; i++) {
+            coef[i] = ((bytes[8 * i] & 0xFF)) |
+                    ((bytes[8 * i + 1] & 0xFF) << 8) |
+                    ((bytes[8 * i + 2] & 0xFF) << 16) |
+                    ((bytes[8 * i + 3] & 0xFF) << 24) |
+                    ((bytes[8 * i + 4] & 0xFF) << 32) |
+                    ((bytes[8 * i + 5] & 0xFF) << 40) |
+                    ((bytes[8 * i + 6] & 0xFF) << 48) |
+                    ((bytes[8 * i + 7] & 0xFF) << 56);
         }
         return new Polynomial(coef);
     }
 
     public byte[] toByte(Polynomial p) {
         byte[] f = new byte[this.N / 8];
-        int[] temp = new int[this.N];
+        long[] temp = new long[this.N];
         for (int i = 0; i < p.GetCoef().length; i++) {
             temp[i] = p.GetCoef()[i];
         }
