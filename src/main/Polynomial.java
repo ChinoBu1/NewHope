@@ -1,6 +1,5 @@
 package main;
 
-import java.math.BigInteger;
 import java.util.Arrays;
 
 public class Polynomial {

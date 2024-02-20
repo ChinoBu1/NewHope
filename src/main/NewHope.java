@@ -1,12 +1,10 @@
 
 package main;
 
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import uk.org.bobulous.java.crypto.keccak.FIPS202;
-import uk.org.bobulous.java.crypto.keccak.KeccakSponge;
+import org.bouncycastle.crypto.digests.SHAKEDigest;
 
 public class NewHope {
     private final Polynomial F;
@@ -55,12 +53,13 @@ public class NewHope {
     }
 
     public Polynomial parseSeed(byte[] seed) throws Exception {
-        KeccakSponge sponge = FIPS202.ExtendableOutputFunction.SHAKE128.withOutputLength(16);
+        SHAKEDigest shake = new SHAKEDigest(128);
         long[] coef = new long[1024];
         int last_coef = 0;
-
+        shake.update(seed, 0, seed.length);
         while (last_coef < 1024) {
-            byte[] hashSeed = sponge.apply(seed);
+            byte[] hashSeed = new byte[2];
+            shake.doOutput(hashSeed, 0, 2);
             int temp = ((hashSeed[0] & 0xFF)) |
                     ((hashSeed[1] & 0xFF) << 8);
             if (temp < 5 * Q) {
@@ -92,7 +91,7 @@ public class NewHope {
     }
 
     public byte[] toByteArray(Polynomial p) {
-        byte[] f = new byte[(p.GetGrado() + 1) * 4];
+        byte[] f = new byte[(p.GetGrado() + 1) * 8];
         for (int i = 0; i <= p.GetGrado(); i++) {
             f[8 * i] = (byte) p.GetCoef()[i];
             f[8 * i + 1] = (byte) (p.GetCoef()[i] >> 8);

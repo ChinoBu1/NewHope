@@ -49,6 +49,7 @@ public class BobNH {
         Polynomial m = nh.parseSeed(seed);
 
         System.out.println(m);
+        System.out.println(Base64.getEncoder().encodeToString(nh.toByteArray(m)));
 
         conection.close();
 

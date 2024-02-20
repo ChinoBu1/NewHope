@@ -44,6 +44,10 @@ public class AliceNH {
             System.arraycopy(paByte, 0, message, 0, paByte.length);
             System.arraycopy(seed, 0, message, paByte.length, seed.length);
 
+            for (int i = 0; i < seed.length; i++) {
+                System.out.print(seed[i]);
+            }
+            System.out.println();
             System.out.println(m);
 
             sendData(message);
