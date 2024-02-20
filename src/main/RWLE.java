@@ -13,10 +13,10 @@ public class RWLE {
     public RWLE(int n, int q) {
         this.n = n;
         this.q = q;
-        int[] coef_f = new int[n];
+        int[] coef_f = new int[n + 1];
         coef_f[0] = 1;
         Arrays.fill(coef_f, 1, n, 0);
-        coef_f[n - 1] = 1;
+        coef_f[n] = 1;
         this.f = new Polynomial(coef_f);
         try {
             random = SecureRandom.getInstance("Windows-PRNG");
@@ -86,7 +86,7 @@ public class RWLE {
 
     public byte[] toByteArray(Polynomial p) {
         byte[] f = new byte[(p.GetGrado() + 1) * 4];
-        for (int i = 0; i <= p.GetGrado(); i += 1) {
+        for (int i = 0; i <= p.GetGrado(); i++) {
             f[4 * i] = (byte) p.GetCoef()[i];
             f[4 * i + 1] = (byte) (p.GetCoef()[i] >> 8);
             f[4 * i + 2] = (byte) (p.GetCoef()[i] >> 16);
@@ -97,11 +97,11 @@ public class RWLE {
 
     public Polynomial fromByteArray(byte[] bytes) {
         int[] coef = new int[this.n];
-        for (int i = 0; i + 3 < bytes.length; i += 4) {
-            coef[i / 4] = ((bytes[i] & 0xFF)) |
-                    ((bytes[i + 1] & 0xFF) << 8) |
-                    ((bytes[i + 2] & 0xFF) << 16) |
-                    ((bytes[i + 3] & 0xFF) << 24);
+        for (int i = 0; 4 * i + 3 < bytes.length; i++) {
+            coef[i] = ((bytes[4 * i] & 0xFF)) |
+                    ((bytes[4 * i + 1] & 0xFF) << 8) |
+                    ((bytes[4 * i + 2] & 0xFF) << 16) |
+                    ((bytes[4 * i + 3] & 0xFF) << 24);
         }
         return new Polynomial(coef);
     }
@@ -112,15 +112,15 @@ public class RWLE {
         for (int i = 0; i < p.GetCoef().length; i++) {
             temp[i] = p.GetCoef()[i];
         }
-        for (int i = 0; i < this.n / 8; i += 8) {
-            f[i] = (byte) (temp[i]
-                    | temp[i + 1] << 1
-                    | temp[i + 2] << 2
-                    | temp[i + 3] << 3
-                    | temp[i + 4] << 4
-                    | temp[i + 5] << 5
-                    | temp[i + 6] << 6
-                    | temp[i + 7] << 7);
+        for (int i = 0; i < this.n / 8; i += 1) {
+            f[i] = (byte) (temp[8 * i]
+                    | temp[8 * i + 1] << 1
+                    | temp[8 * i + 2] << 2
+                    | temp[8 * i + 3] << 3
+                    | temp[8 * i + 4] << 4
+                    | temp[8 * i + 5] << 5
+                    | temp[8 * i + 6] << 6
+                    | temp[8 * i + 7] << 7);
         }
         return f;
     }

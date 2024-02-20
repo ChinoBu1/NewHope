@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -20,7 +21,6 @@ public class Alice {
     static final int PORT = 8888;
 
     public static void main(String[] args) throws Exception {
-        Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
         if (args.length < 4) {
             server = new ServerSocket(PORT);
         } else {
@@ -31,38 +31,46 @@ public class Alice {
         stddev = Double.parseDouble(args[2]);
 
         System.out.println("Server is listening");
-        conection = server.accept();
-        input = new DataInputStream(conection.getInputStream());
-        output = new DataOutputStream(conection.getOutputStream());
+        while (true) {
+            conection = server.accept();
+            input = new DataInputStream(conection.getInputStream());
+            output = new DataOutputStream(conection.getOutputStream());
 
-        Polynomial m = rwle.generateUnfPol();
-        Polynomial sa = rwle.generateGauPol(stddev);
-        Polynomial ea = rwle.generateGauPol(stddev);
-        Polynomial pa = Polynomial.PolyModInt(
-                Polynomial.PolyModF(
-                        Polynomial.SumPoly(
-                                Polynomial.MultPoly(m, sa),
-                                Polynomial.EscalarPoly(2, ea)),
-                        rwle.getF()),
-                rwle.getQ());
+            Polynomial m = rwle.generateUnfPol();
+            Polynomial sa = rwle.generateGauPol(stddev);
+            Polynomial ea = rwle.generateGauPol(stddev);
+            Polynomial pa = Polynomial.PolyModInt(
+                    Polynomial.PolyModF(
+                            Polynomial.SumPoly(
+                                    Polynomial.MultPoly(m, sa),
+                                    Polynomial.EscalarPoly(2, ea)),
+                            rwle.getF()),
+                    rwle.getQ());
 
-        sendPol(m);
-        sendPol(pa);
+            sendPol(m);
+            sendPol(pa);
 
-        Polynomial pb = readPol(4 * Integer.parseInt(args[0]));
-        Polynomial oKb = readPol(4 * Integer.parseInt(args[0]));
+            Polynomial pb = readPol(4 * Integer.parseInt(args[0]));
+            Polynomial oKb = readPol(4 * Integer.parseInt(args[0]));
 
-        Polynomial ea1 = rwle.generateGauPol(stddev);
+            Polynomial ea1 = rwle.generateGauPol(stddev);
 
-        Polynomial Ka = Polynomial.PolyModInt(
-                Polynomial.PolyModF(
-                        Polynomial.SumPoly(
-                                Polynomial.MultPoly(sa, pb),
-                                Polynomial.EscalarPoly(2, ea1)),
-                        rwle.getF()),
-                rwle.getQ());
-        Polynomial SKa = rwle.extractor(Ka, oKb);
-        System.out.println(Byte.toUnsignedInt(rwle.toByte(SKa)[0]));
+            Polynomial Ka = Polynomial.PolyModInt(
+                    Polynomial.PolyModF(
+                            Polynomial.SumPoly(
+                                    Polynomial.MultPoly(sa, pb),
+                                    Polynomial.EscalarPoly(2, ea1)),
+                            rwle.getF()),
+                    rwle.getQ());
+            Polynomial SKa = rwle.extractor(Ka, oKb);
+
+            SecretKey SK = new SecretKeySpec(rwle.toByte(SKa), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+
+            cipher.init(Cipher.ENCRYPT_MODE, SK);
+            byte[] message = Base64.getEncoder().encode(cipher.doFinal("Test".getBytes()));
+            sendData(message);
+        }
 
     }
 
@@ -79,6 +87,7 @@ public class Alice {
     }
 
     public static void sendData(byte[] bytes) throws IOException {
+        output.writeInt(bytes.length);
         output.write(bytes);
         output.flush();
     }

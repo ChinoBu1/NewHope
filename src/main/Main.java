@@ -1,21 +1,33 @@
 package main;
 
-import java.security.NoSuchAlgorithmException;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Base64;
 
 class Main {
-        public static void main(String[] args) throws NoSuchAlgorithmException {
+        public static void main(String[] args) throws Exception {
 
                 int gradoPolinomiof = Integer.parseInt(args[0]);
                 int q = Integer.parseInt(args[1]);
                 Double stddev = Double.parseDouble(args[2]);
                 RWLE prueba = new RWLE(gradoPolinomiof, q);
+                NewHope test = new NewHope();
 
                 Polynomial f = prueba.getF();
                 System.out.println(f);
+
+                Path path = Paths.get("intentos.txt");
+                System.out.println(path);
+
+                // for (int i = 0; i < 10000; i++) {
+
                 int repeticiones = 1;
                 boolean fin = false;
-
-                while (!fin && repeticiones <= 1000) {
+                long start = System.currentTimeMillis();
+                while (!fin && repeticiones <= 1000000) {
 
                         Polynomial m = prueba.generateUnfPol();
 
@@ -65,20 +77,29 @@ class Main {
                         Polynomial SKa = prueba.extractor(Ka, oKb);
 
                         if (SKa.equals(SKb)) {
-                                System.out.println("Se han realizado " + repeticiones);
-
-                                System.out.println("Shared Key = " + SKa);
-                                for (int i = 0; i < prueba.toByte(SKa).length; i++) {
-                                        System.out.print(Byte.toUnsignedInt(prueba.toByte(SKa)[i]) + " ");
-                                }
+                                long finish = System.currentTimeMillis();
+                                System.out.println("Se han realizado " + repeticiones + " repeticiones en "
+                                                + (finish - start)
+                                                + " milisegundos");
+                                System.out.println(Base64.getEncoder().encodeToString(test.generateSeed()));
+                                Polynomial fg = test.parseSeed(test.generateSeed());
                                 fin = true;
+                                // Files.write(path, (repeticiones + "\n").toString().getBytes(),
+                                // StandardOpenOption.APPEND);
                         }
+
+                        long finish = System.currentTimeMillis();
+                        if (repeticiones > 1000000) {
+                                System.err.println("1000000 repeticiones alcanzadas en " + (finish - start)
+                                                + " milisegundos");
+                                // Files.write(path, (repeticiones + "\n").toString().getBytes(),
+                                // StandardOpenOption.APPEND);
+
+                        }
+
                         repeticiones++;
                 }
-                if (repeticiones > 1000) {
-                        System.err.println("1000 repeticiones alcanzadas");
-
-                }
+                // }
         }
 
 }
