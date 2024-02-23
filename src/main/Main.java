@@ -1,11 +1,7 @@
 package main;
 
-import java.io.FileOutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Base64;
 
 class Main {
         public static void main(String[] args) throws Exception {
@@ -14,13 +10,11 @@ class Main {
                 long q = Long.parseLong(args[1]);
                 Double stddev = Double.parseDouble(args[2]);
                 RWLE prueba = new RWLE(gradoPolinomiof, q);
-                NewHope test = new NewHope();
 
                 Polynomial f = prueba.getF();
                 System.out.println(f);
 
                 Path path = Paths.get("intentos.txt");
-                System.out.println(path);
 
                 // for (int i = 0; i < 10000; i++) {
 
@@ -81,8 +75,7 @@ class Main {
                                 System.out.println("Se han realizado " + repeticiones + " repeticiones en "
                                                 + (finish - start)
                                                 + " milisegundos");
-                                System.out.println(Base64.getEncoder().encodeToString(test.generateSeed()));
-                                Polynomial fg = test.parseSeed(test.generateSeed());
+
                                 fin = true;
                                 // Files.write(path, (repeticiones + "\n").toString().getBytes(),
                                 // StandardOpenOption.APPEND);

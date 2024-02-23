@@ -5,7 +5,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
 import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 public class BobNH {
     private static Socket conection;
@@ -15,6 +24,8 @@ public class BobNH {
     static final int PORT = 8888;
 
     public static void main(String[] args) throws Exception {
+        // int intentos = 0;
+        // while (intentos < 1000) {
         if (args.length < 1) {
             conection = new Socket(InetAddress.getLocalHost(), PORT);
         } else {
@@ -26,12 +37,12 @@ public class BobNH {
         input = new DataInputStream(conection.getInputStream());
         output = new DataOutputStream(conection.getOutputStream());
 
-        byte[] message = reciveData();
+        byte[] rmessage = reciveData();
         byte[] seed = new byte[32];
-        byte[] paByte = new byte[message.length - 32];
+        byte[] paByte = new byte[rmessage.length - 32];
 
-        System.arraycopy(message, message.length - 32, seed, 0, 32);
-        System.arraycopy(message, 0, paByte, 0, message.length - 32);
+        System.arraycopy(rmessage, rmessage.length - 32, seed, 0, 32);
+        System.arraycopy(rmessage, 0, paByte, 0, rmessage.length - 32);
 
         Polynomial pa = nh.fromByteArray(paByte);
 
@@ -48,11 +59,63 @@ public class BobNH {
 
         Polynomial m = nh.parseSeed(seed);
 
-        System.out.println(m);
-        System.out.println(Base64.getEncoder().encodeToString(nh.toByteArray(m)));
+        Polynomial eb = nh.generateBinoPol();
+        Polynomial pb = Polynomial.PolyModInt(
+                Polynomial.PolyModF(
+                        Polynomial.SumPoly(
+                                Polynomial.MultPoly(m, sb),
+                                eb),
+                        nh.getF()),
+                nh.getQ());
 
+        int[][] hint = nh.hint(Kb);
+
+        byte[] hintByte = new byte[hint.length * 4 * 4];
+        for (int i = 0; i < hint.length; i++) {
+            for (int j = 0; j < hint[i].length; j++) {
+                hintByte[4 * (4 * i + j)] = (byte) (hint[i][j]);
+                hintByte[4 * (4 * i + j) + 1] = (byte) (hint[i][j] >> 8);
+                hintByte[4 * (4 * i + j) + 2] = (byte) (hint[i][j] >> 16);
+                hintByte[4 * (4 * i + j) + 3] = (byte) (hint[i][j] >> 24);
+            }
+        }
+
+        byte[] pbByte = nh.toByteArray(pb);
+        byte[] message = new byte[pbByte.length + hintByte.length];
+
+        System.arraycopy(pbByte, 0, message, 0, pbByte.length);
+        System.arraycopy(hintByte, 0, message, pbByte.length, hintByte.length);
+
+        sendData(message);
         conection.close();
+        int[] SK = nh.REC(Kb, hint);
+        byte[] K = nh.toByte(SK);
+        System.out.println();
 
+        System.out.println(Base64.getEncoder().encodeToString(K));
+
+        // intentos++;
+        // }
+        // Path path = Paths.get("hint.txt");
+        // Path path2 = Paths.get("q.txt");
+        // for (int i = 0; i < Kb.GetCoef().length; i++) {
+        // Files.write(path2, (Kb.GetCoef()[i] + "\n").toString().getBytes(),
+        // StandardOpenOption.APPEND);
+
+        // }
+        // for (int i = 0; i < hint.length; i++) {
+        // for (int j = 0; j < hint[i].length; j++) {
+        // Files.write(path, (hint[i][j] + "\n").toString().getBytes(),
+        // StandardOpenOption.APPEND);
+        // }
+        // }
+
+    }
+
+    public static void sendData(byte[] bytes) throws IOException {
+        output.writeInt(bytes.length);
+        output.write(bytes);
+        output.flush();
     }
 
     public static byte[] reciveData() throws IOException {
@@ -60,4 +123,5 @@ public class BobNH {
         input.read(message);
         return message;
     }
+
 }

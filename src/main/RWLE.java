@@ -120,7 +120,7 @@ public class RWLE {
         for (int i = 0; i < p.GetCoef().length; i++) {
             temp[i] = p.GetCoef()[i];
         }
-        for (int i = 0; i < this.n / 8; i += 1) {
+        for (int i = 0; i * 8 + 7 < temp.length; i += 1) {
             f[i] = (byte) (temp[8 * i]
                     | temp[8 * i + 1] << 1
                     | temp[8 * i + 2] << 2

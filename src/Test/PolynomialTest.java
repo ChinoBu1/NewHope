@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import main.NewHope;
 import main.Polynomial;
 import main.RWLE;
 
@@ -237,6 +238,41 @@ public class PolynomialTest {
         Polynomial reconstruc = test.fromByteArray(q);
 
         assertEquals(p, reconstruc);
+    }
+
+    @Test
+    public void testbyteNH() {
+        NewHope test = new NewHope();
+        long[] coef_1 = new long[5];
+        coef_1[0] = 1;
+        coef_1[1] = 2;
+        coef_1[2] = 0;
+        coef_1[3] = 6;
+        coef_1[4] = 2;
+
+        Polynomial p = new Polynomial(coef_1);
+        byte[] q = test.toByteArray(p);
+        Polynomial reconstruc = test.fromByteArray(q);
+
+        assertEquals(p, reconstruc);
+    }
+
+    @Test
+    public void testHint() {
+        NewHope test = new NewHope();
+        long[] coef = new long[1024];
+        Arrays.fill(coef, 1);
+        coef[0] = 6096;
+        coef[256] = 6243;
+        coef[512] = 816;
+        coef[768] = 5561;
+
+        int[][] hint = test.hint(new Polynomial(coef));
+
+        assertEquals(0, hint[0][0]);
+        assertEquals(0, hint[0][1]);
+        assertEquals(2, hint[0][2]);
+        assertEquals(0, hint[0][3]);
     }
 
 }
