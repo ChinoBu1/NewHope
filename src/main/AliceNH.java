@@ -30,6 +30,7 @@ public class AliceNH {
 
         while (true) {
             conection = server.accept();
+            long start = System.currentTimeMillis();
             input = new DataInputStream(conection.getInputStream());
             output = new DataOutputStream(conection.getOutputStream());
             byte[] seed = nh.generateSeed();
@@ -75,10 +76,15 @@ public class AliceNH {
 
             int[] SK = nh.REC(Ka, hint);
             byte[] K = nh.toByte(SK);
-
-            System.out.println();
-            System.out.println(Base64.getEncoder().encodeToString(K));
-
+            MessageDigest ms = MessageDigest.getInstance("SHA3-256");
+            byte[] Key = ms.digest(K);
+            SecretKey sk = new SecretKeySpec(Key, "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, sk);
+            byte[] secret = Base64.getEncoder().encode(cipher.doFinal("Test".getBytes()));
+            sendData(secret);
+            long finish = System.currentTimeMillis();
+            System.out.println("Finished in " + (finish - start) + " ms");
         }
 
     }

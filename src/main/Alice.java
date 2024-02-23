@@ -27,7 +27,7 @@ public class Alice {
             server = new ServerSocket(Integer.parseInt(args[3]));
         }
 
-        rwle = new RWLE(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+        rwle = new RWLE(Integer.parseInt(args[0]), Long.parseLong(args[1]));
         stddev = Double.parseDouble(args[2]);
 
         System.out.println("Server is listening");
