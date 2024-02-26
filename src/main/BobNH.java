@@ -110,6 +110,7 @@ public class BobNH {
                 System.out.println("Fail");
             }
             if ("Test".equals(new String(decrypt))) {
+
                 long finish = System.currentTimeMillis();
                 intentos++;
                 System.out.println("Succes in " + (finish - start) + " ms");

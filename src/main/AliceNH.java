@@ -29,6 +29,7 @@ public class AliceNH {
         nh = new NewHope();
 
         while (true) {
+            System.out.println("Server is listening");
             conection = server.accept();
             long start = System.currentTimeMillis();
             input = new DataInputStream(conection.getInputStream());

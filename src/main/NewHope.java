@@ -110,14 +110,17 @@ public class NewHope {
             norm = norm + Math.abs(x[i] - v0[i]);
         }
         if (norm < 1) {
-            int[] resp = { (v0[0] - v0[3]), (v0[1] - v0[3]),
-                    (v0[2] - v0[3]),
-                    (2 * v0[3]) };
+            int[] resp = { (((v0[0] - v0[3]) % (4)) + (4)) % (4),
+                    (((v0[1] - v0[3]) % (4)) + (4)) % (4),
+                    (((v0[2] - v0[3]) % (4)) + (4)) % (4),
+                    (((2 * v0[3]) % (4)) + (4)) % (4) };
+
             return resp;
         } else {
-            int[] resp = { (v1[0] - v1[3]), (v1[1] - v1[3]),
-                    (v1[2] - v1[3]),
-                    (1 + 2 * v1[3]) };
+            int[] resp = { (((v1[0] - v1[3]) % (4)) + (4)) % (4),
+                    (((v1[1] - v1[3]) % (4)) + (4)) % (4),
+                    (((v1[2] - v1[3]) % (4)) + (4)) % (4),
+                    (((1 + 2 * v1[3]) % (4)) + (4)) % (4) };
             return resp;
         }
     }
@@ -130,10 +133,10 @@ public class NewHope {
             float x1 = ((float) coef_x[i + 256]);
             float x2 = ((float) coef_x[i + 512]);
             float x3 = ((float) coef_x[i + 768]);
-            float[] temp = { x0 - (float) (hint[i][0] + ((float) hint[i][3]) / 2),
-                    x1 - (float) (hint[i][1] + ((float) hint[i][3]) / 2),
-                    x2 - (float) (hint[i][2] + ((float) hint[i][3]) / 2),
-                    x3 - (((float) hint[i][3]) / 2) };
+            float[] temp = { x0 - (float) (hint[i][0] + ((float) hint[i][3]) / 2) / 4,
+                    x1 - (float) (hint[i][1] + ((float) hint[i][3]) / 2) / 4,
+                    x2 - (float) (hint[i][2] + ((float) hint[i][3]) / 2) / 4,
+                    x3 - (((float) hint[i][3]) / 2) / 4 };
             result[i] = Decode(temp);
 
         }
@@ -141,10 +144,8 @@ public class NewHope {
     }
 
     private int Decode(float[] x) {
-        float[] v = new float[4];
         float norm = 0;
         for (int i = 0; i < x.length; i++) {
-            v[i] = x[i] - Math.round(x[i]);
             norm = norm + Math.abs(x[i] - Math.round(x[i]));
         }
         if (norm <= 1)
