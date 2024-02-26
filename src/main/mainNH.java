@@ -71,7 +71,6 @@ public class mainNH {
                 }
                 System.out.println();
                 if (Arrays.equals(key_a, key_b)) {
-                        System.out.println(Base64.getEncoder().encodeToString(key_a));
                         System.out.println("Succes");
                 } else {
 
