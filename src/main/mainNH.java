@@ -49,6 +49,8 @@ public class mainNH {
                 byte[] K_b = nh.toByte(SKb);
                 byte[] key_b = ms.digest(K_b);
 
+                Polynomial Rival = nh.generateBinoPol();
+
                 Polynomial Ka = Polynomial.PolyModInt(
                                 Polynomial.PolyModF(
                                                 Polynomial.MultPoly(sa, pb),
@@ -58,6 +60,8 @@ public class mainNH {
                 int[] SKa = nh.REC(Ka, hint);
                 byte[] K_a = nh.toByte(SKa);
                 byte[] key_a = ms.digest(K_a);
+                int[] SKr = nh.REC(Rival, hint);
+                byte[] K_r = nh.toByte(SKr);
                 long finish = System.currentTimeMillis();
                 System.out.println((finish - start) + " milisegundos");
                 for (byte b : K_a) {
@@ -66,6 +70,11 @@ public class mainNH {
                 }
                 System.out.println();
                 for (byte b : K_b) {
+                        System.out.print(b);
+                        System.out.print(" ");
+                }
+                System.out.println();
+                for (byte b : K_r) {
                         System.out.print(b);
                         System.out.print(" ");
                 }

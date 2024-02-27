@@ -96,6 +96,12 @@ public class NewHope {
                     4 * x2 / Q,
                     4 * x3 / Q };
             hint[i] = CVP(temp);
+            System.out.print("Itr: " + i + " b = " + b + "\n");
+            System.out.print(
+                    "coef:" + coef_a[i] + " " + coef_a[i + 256] + " " + coef_a[i + 512] + " " + coef_a[i + 768]
+                            + "\n");
+            System.out.print("Entrada: " + temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3] + "\n");
+            System.out.print("CVP: " + hint[i][0] + " " + hint[i][1] + " " + hint[i][2] + " " + hint[i][3] + "\n");
         }
         return hint;
     }
@@ -110,17 +116,17 @@ public class NewHope {
             norm = norm + Math.abs(x[i] - v0[i]);
         }
         if (norm < 1) {
-            int[] resp = { (((v0[0] - v0[3]) % (4)) + (4)) % (4),
-                    (((v0[1] - v0[3]) % (4)) + (4)) % (4),
-                    (((v0[2] - v0[3]) % (4)) + (4)) % (4),
-                    (((2 * v0[3]) % (4)) + (4)) % (4) };
+            int[] resp = { (((v0[0] - v0[3]) % 4) + 4) % 4,
+                    (((v0[1] - v0[3]) % 4) + 4) % 4,
+                    (((v0[2] - v0[3]) % 4) + 4) % 4,
+                    (((2 * v0[3]) % 4) + 4) % 4 };
 
             return resp;
         } else {
-            int[] resp = { (((v1[0] - v1[3]) % (4)) + (4)) % (4),
-                    (((v1[1] - v1[3]) % (4)) + (4)) % (4),
-                    (((v1[2] - v1[3]) % (4)) + (4)) % (4),
-                    (((1 + 2 * v1[3]) % (4)) + (4)) % (4) };
+            int[] resp = { (((v1[0] - v1[3]) % 4) + 4) % 4,
+                    (((v1[1] - v1[3]) % 4) + 4) % 4,
+                    (((v1[2] - v1[3]) % 4) + 4) % 4,
+                    (((1 + 2 * v1[3]) % 4) + 4) % 4 };
             return resp;
         }
     }
@@ -129,15 +135,22 @@ public class NewHope {
         long[] coef_x = x.GetCoef();
         int result[] = new int[256];
         for (int i = 0; i < 256; i++) {
-            float x0 = ((float) coef_x[i]);
-            float x1 = ((float) coef_x[i + 256]);
-            float x2 = ((float) coef_x[i + 512]);
-            float x3 = ((float) coef_x[i + 768]);
+            float x0 = ((float) coef_x[i]) / Q;
+            float x1 = ((float) coef_x[i + 256]) / Q;
+            float x2 = ((float) coef_x[i + 512]) / Q;
+            float x3 = ((float) coef_x[i + 768]) / Q;
             float[] temp = { x0 - (float) (hint[i][0] + ((float) hint[i][3]) / 2) / 4,
                     x1 - (float) (hint[i][1] + ((float) hint[i][3]) / 2) / 4,
                     x2 - (float) (hint[i][2] + ((float) hint[i][3]) / 2) / 4,
                     x3 - (((float) hint[i][3]) / 2) / 4 };
             result[i] = Decode(temp);
+            System.out.println("Itr: " + i);
+            System.out.print(
+                    "coef:" + coef_x[i] + " " + coef_x[i + 256] + " " + coef_x[i + 512] + " " + coef_x[i + 768]
+                            + "\n");
+            System.out.print("hint: " + hint[i][0] + " " + hint[i][1] + " " + hint[i][2] + " " + hint[i][3] + "\n");
+            System.out.print("Entrada: " + temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3] + "\n");
+            System.out.print("Decode: " + result[i] + "\n");
 
         }
         return result;
