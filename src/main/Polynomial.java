@@ -101,15 +101,12 @@ public class Polynomial {
         Polynomial q = new Polynomial();
         Polynomial r = a;
         if (a.GetGrado() < F.GetGrado()) {
-            return a;
+            return r;
         }
         while (r.GetGrado() >= F.GetGrado()) {
             int temp1 = r.GetGrado() - F.GetGrado();
             long[] coef_t = new long[temp1 + 1];
             long temp2 = r.GetCoef()[r.GetGrado()] / F.GetCoef()[F.GetGrado()];
-            for (int i = 0; i < temp1; i++) {
-                coef_t[i] = 0;
-            }
             coef_t[temp1] = temp2;
             Polynomial t = new Polynomial(coef_t);
             q = SumPoly(q, t);
@@ -138,9 +135,9 @@ public class Polynomial {
                     p = p + String.format("-x^%d ", i);
                 } else {
                     if (p.equals("")) {
-                        p = p + String.format("%dx^%d ", temp, i);
+                        p = p + String.format("%d*x^%d ", temp, i);
                     } else {
-                        p = p + String.format("%+dx^%d ", temp, i);
+                        p = p + String.format("%+d*x^%d ", temp, i);
                     }
                 }
             }

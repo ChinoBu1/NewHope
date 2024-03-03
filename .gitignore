@@ -27,3 +27,4 @@ replay_pid*
 
 #VS code preferences
 .vscode/
+*.py

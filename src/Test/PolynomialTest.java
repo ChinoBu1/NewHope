@@ -257,22 +257,4 @@ public class PolynomialTest {
         assertEquals(p, reconstruc);
     }
 
-    @Test
-    public void testHint() {
-        NewHope test = new NewHope();
-        long[] coef = new long[1024];
-        Arrays.fill(coef, 1);
-        coef[0] = 6096;
-        coef[256] = 6243;
-        coef[512] = 816;
-        coef[768] = 5561;
-
-        int[][] hint = test.hint(new Polynomial(coef));
-
-        assertEquals(0, hint[0][0]);
-        assertEquals(0, hint[0][1]);
-        assertEquals(2, hint[0][2]);
-        assertEquals(0, hint[0][3]);
-    }
-
 }

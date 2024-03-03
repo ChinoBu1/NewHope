@@ -4,14 +4,20 @@ package main;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.Random;
+import java.util.logging.Logger;
+
 import org.bouncycastle.crypto.digests.SHAKEDigest;
 
 public class NewHope {
+    Logger logger = Logger.getLogger("mainNH");
     private final Polynomial F;
     private final int Q = 12289;
     private final int N = 1024;
     private final float[] G = { 0.5f, 0.5f, 0.5f, 0.5f };
-    SecureRandom random;
+    Random random;
+    int prime;
 
     public NewHope() {
         long[] coef_f = new long[N + 1];
@@ -19,27 +25,39 @@ public class NewHope {
         Arrays.fill(coef_f, 1, N, 0);
         coef_f[N] = 1;
         this.F = new Polynomial(coef_f);
-        try {
-            random = SecureRandom.getInstance("Windows-PRNG");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+        this.prime = Q;
+        random = new Random(2024);
+    }
+
+    public NewHope(int q) {
+        long[] coef_f = new long[N + 1];
+        coef_f[0] = 1;
+        Arrays.fill(coef_f, 1, N, 0);
+        coef_f[N] = 1;
+        this.F = new Polynomial(coef_f);
+        this.prime = q;
+        random = new Random(2024);
     }
 
     public Polynomial getF() {
         return new Polynomial(this.F.GetCoef());
     }
 
-    public int getQ() {
-        return this.Q;
+    public int getPrime() {
+        return this.prime;
     }
 
-    public byte[] generateSeed() {
+    public int[] generate256Bits() {
         int[] temp = new int[256];
-        byte[] seed = new byte[32];
         for (int i = 0; i < 256; i++) {
             temp[i] = random.nextInt(2);
         }
+        return temp;
+    }
+
+    public byte[] generateSeed() {
+        int[] temp = generate256Bits();
+        byte[] seed = new byte[32];
         for (int i = 0; i < 32; i += 1) {
             seed[i] = (byte) (temp[8 * i]
                     | temp[8 * i + 1] << 1
@@ -63,7 +81,7 @@ public class NewHope {
             shake.doOutput(hashSeed, 0, 2);
             int temp = ((hashSeed[0] & 0xFF)) |
                     ((hashSeed[1] & 0xFF) << 8);
-            if (temp < 5 * Q) {
+            if (temp < prime) {
                 coef[last_coef] = temp;
                 last_coef++;
             }
@@ -77,36 +95,16 @@ public class NewHope {
     public Polynomial generateBinoPol() {
         long[] coef = new long[this.N];
         for (int i = 0; i < this.N; i++) {
-            coef[i] = random.nextInt(-16, 17);
+            long temp = 0;
+            for (int j = 0; j < 16; j++) {
+                temp = temp + (random.nextInt(2) - random.nextInt(2));
+            }
+            coef[i] = temp;
         }
         return new Polynomial(coef);
     }
 
-    public int[][] hint(Polynomial a) {
-        long[] coef_a = a.GetCoef();
-        int[][] hint = new int[256][];
-        for (int i = 0; i < 256; i++) {
-            int b = random.nextInt(2);
-            float x0 = (float) ((float) coef_a[i] + (float) b / 2);
-            float x1 = (float) ((float) coef_a[i + 256] + (float) b / 2);
-            float x2 = (float) ((float) coef_a[i + 512] + (float) b / 2);
-            float x3 = (float) ((float) coef_a[i + 768] + (float) b / 2);
-            float[] temp = { 4 * x0 / Q,
-                    4 * x1 / Q,
-                    4 * x2 / Q,
-                    4 * x3 / Q };
-            hint[i] = CVP(temp);
-            System.out.print("Itr: " + i + " b = " + b + "\n");
-            System.out.print(
-                    "coef:" + coef_a[i] + " " + coef_a[i + 256] + " " + coef_a[i + 512] + " " + coef_a[i + 768]
-                            + "\n");
-            System.out.print("Entrada: " + temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3] + "\n");
-            System.out.print("CVP: " + hint[i][0] + " " + hint[i][1] + " " + hint[i][2] + " " + hint[i][3] + "\n");
-        }
-        return hint;
-    }
-
-    private int[] CVP(float[] x) {
+    public int[] CVP(float[] x, int r) {
         int[] v0 = new int[4];
         int[] v1 = new int[4];
         float norm = 0;
@@ -115,51 +113,32 @@ public class NewHope {
             v1[i] = Math.round(x[i] - G[i]);
             norm = norm + Math.abs(x[i] - v0[i]);
         }
+        logger.info(
+                String.format(Locale.US, "v0 = ( %d, %d, %d, %d) v1 = ( %d, %d, %d, %d)  ||x-v0|| = %f  ", v0[0], v0[1],
+                        v0[2], v0[3], v1[0], v1[1], v1[2], v1[3], norm));
         if (norm < 1) {
-            int[] resp = { (((v0[0] - v0[3]) % 4) + 4) % 4,
-                    (((v0[1] - v0[3]) % 4) + 4) % 4,
-                    (((v0[2] - v0[3]) % 4) + 4) % 4,
-                    (((2 * v0[3]) % 4) + 4) % 4 };
+            int[] resp = { (v0[0] - v0[3]),
+                    (v0[1] - v0[3]),
+                    (v0[2] - v0[3]),
+                    (2 * v0[3]) };
 
             return resp;
         } else {
-            int[] resp = { (((v1[0] - v1[3]) % 4) + 4) % 4,
-                    (((v1[1] - v1[3]) % 4) + 4) % 4,
-                    (((v1[2] - v1[3]) % 4) + 4) % 4,
-                    (((1 + 2 * v1[3]) % 4) + 4) % 4 };
+            int[] resp = { (v1[0] - v1[3]),
+                    (v1[1] - v1[3]),
+                    (v1[2] - v1[3]),
+                    (1 + 2 * v1[3]) };
             return resp;
         }
     }
 
-    public int[] REC(Polynomial x, int[][] hint) {
-        long[] coef_x = x.GetCoef();
-        int result[] = new int[256];
-        for (int i = 0; i < 256; i++) {
-            float x0 = ((float) coef_x[i]) / Q;
-            float x1 = ((float) coef_x[i + 256]) / Q;
-            float x2 = ((float) coef_x[i + 512]) / Q;
-            float x3 = ((float) coef_x[i + 768]) / Q;
-            float[] temp = { x0 - (float) (hint[i][0] + ((float) hint[i][3]) / 2) / 4,
-                    x1 - (float) (hint[i][1] + ((float) hint[i][3]) / 2) / 4,
-                    x2 - (float) (hint[i][2] + ((float) hint[i][3]) / 2) / 4,
-                    x3 - (((float) hint[i][3]) / 2) / 4 };
-            result[i] = Decode(temp);
-            System.out.println("Itr: " + i);
-            System.out.print(
-                    "coef:" + coef_x[i] + " " + coef_x[i + 256] + " " + coef_x[i + 512] + " " + coef_x[i + 768]
-                            + "\n");
-            System.out.print("hint: " + hint[i][0] + " " + hint[i][1] + " " + hint[i][2] + " " + hint[i][3] + "\n");
-            System.out.print("Entrada: " + temp[0] + " " + temp[1] + " " + temp[2] + " " + temp[3] + "\n");
-            System.out.print("Decode: " + result[i] + "\n");
-
-        }
-        return result;
-    }
-
-    private int Decode(float[] x) {
+    public int Decode(float[] x, boolean log) {
         float norm = 0;
         for (int i = 0; i < x.length; i++) {
             norm = norm + Math.abs(x[i] - Math.round(x[i]));
+        }
+        if (log) {
+            logger.info(String.format(Locale.US, "Norma: %f                                        ", norm));
         }
         if (norm <= 1)
             return 0;

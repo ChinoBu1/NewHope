@@ -45,7 +45,7 @@ public class AliceNH {
                                     Polynomial.MultPoly(m, sa),
                                     ea),
                             nh.getF()),
-                    nh.getQ());
+                    nh.getPrime());
             byte[] paByte = nh.toByteArray(pa);
             byte[] message = new byte[paByte.length + seed.length];
             System.arraycopy(paByte, 0, message, 0, paByte.length);
@@ -73,7 +73,7 @@ public class AliceNH {
                     Polynomial.PolyModF(
                             Polynomial.MultPoly(sa, pb),
                             nh.getF()),
-                    nh.getQ());
+                    nh.getPrime());
 
             int[] SK = nh.REC(Ka, hint);
             byte[] K = nh.toByte(SK);

@@ -55,7 +55,7 @@ public class BobNH {
                                 Polynomial.MultPoly(pa, sb),
                                 eb1),
                         nh.getF()),
-                nh.getQ());
+                nh.getPrime());
 
         Polynomial m = nh.parseSeed(seed);
 
@@ -66,9 +66,9 @@ public class BobNH {
                                 Polynomial.MultPoly(m, sb),
                                 eb),
                         nh.getF()),
-                nh.getQ());
-
-        int[][] hint = nh.hint(Kb);
+                nh.getPrime());
+        int[] b = nh.generate256Bits();
+        int[][] hint = nh.hint(Kb, b);
 
         byte[] hintByte = new byte[hint.length * 4 * 4];
         for (int i = 0; i < hint.length; i++) {
