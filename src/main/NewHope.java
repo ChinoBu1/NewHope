@@ -15,6 +15,7 @@ public class NewHope {
     private final Polynomial F;
     private final int Q = 12289;
     private final int N = 1024;
+    private final float R = 4f;
     private final float[] G = { 0.5f, 0.5f, 0.5f, 0.5f };
     Random random;
     int prime;
@@ -26,7 +27,8 @@ public class NewHope {
         coef_f[N] = 1;
         this.F = new Polynomial(coef_f);
         this.prime = Q;
-        random = new Random(2024);
+        // random = new Random(2024);
+        random = new SecureRandom();
     }
 
     public NewHope(int q) {
@@ -36,7 +38,8 @@ public class NewHope {
         coef_f[N] = 1;
         this.F = new Polynomial(coef_f);
         this.prime = q;
-        random = new Random(2024);
+        // random = new Random(2024);
+        random = new SecureRandom();
     }
 
     public Polynomial getF() {
@@ -104,7 +107,25 @@ public class NewHope {
         return new Polynomial(coef);
     }
 
-    public int[] CVP(float[] x, int r) {
+    public int[][] hint(Polynomial x) {
+        int[][] resp = new int[256][4];
+        for (int i = 0; i < resp.length; i++) {
+            int b = random.nextInt(2);
+            float[] paramHint = new float[] {
+                    R / Q * ((float) x.GetCoef()[i] + (float) .5f * b),
+                    R / Q * ((float) x.GetCoef()[i + 256] + (float) .5f * b),
+                    R / Q * ((float) x.GetCoef()[i + 512] + (float) .5f * b),
+                    R / Q * ((float) x.GetCoef()[i + 768] + (float) .5f * b)
+            };
+            for (int j = 0; j < R; j++) {
+                resp[i][j] = ((CVP(paramHint)[j] % 4) + 4) % 4;
+            }
+        }
+
+        return resp;
+    }
+
+    public int[] CVP(float[] x) {
         int[] v0 = new int[4];
         int[] v1 = new int[4];
         float norm = 0;
@@ -130,6 +151,20 @@ public class NewHope {
                     (1 + 2 * v1[3]) };
             return resp;
         }
+    }
+
+    public int[] Rec(Polynomial x, int[][] hint) {
+        int[] resp = new int[256];
+        for (int i = 0; i < resp.length; i++) {
+            float[] decodeParam = new float[] {
+                    (float) x.GetCoef()[i] / Q - .25f * (hint[i][0] + .5f * hint[i][3]),
+                    (float) x.GetCoef()[i + 256] / Q - .25f * (hint[i][1] + .5f * hint[i][3]),
+                    (float) x.GetCoef()[i + 512] / Q - .25f * (hint[i][2] + .5f * hint[i][3]),
+                    (float) x.GetCoef()[i + 768] / Q - hint[i][3] * .5f * .25f
+            };
+            resp[i] = Decode(decodeParam, false);
+        }
+        return resp;
     }
 
     public int Decode(float[] x, boolean log) {
