@@ -53,7 +53,7 @@ public class Polynomial {
             resultcoef[i] = a.GetCoef()[i] + b.GetCoef()[i];
         }
         for (int j = i; j <= a.GetGrado(); j++) {
-            resultcoef[i] = a.GetCoef()[j];
+            resultcoef[j] = a.GetCoef()[j];
         }
         Polynomial result = new Polynomial(resultcoef);
         return result;
