@@ -42,9 +42,9 @@ public class Bob {
             Polynomial eb = rwle.generateGauPol(stddev);
             Polynomial pb = Polynomial.PolyModInt(
                     Polynomial.PolyModF(
-                            Polynomial.SumPoly(
-                                    Polynomial.MultPoly(m, sb),
-                                    Polynomial.EscalarPoly(2, eb)),
+                            Polynomial.PolySum(
+                                    Polynomial.PolyMult(m, sb),
+                                    Polynomial.PolyEscalar(2, eb)),
                             rwle.getF()),
                     rwle.getQ());
 
@@ -53,9 +53,9 @@ public class Bob {
             Polynomial eb1 = rwle.generateGauPol(stddev);
             Polynomial Kb = Polynomial.PolyModInt(
                     Polynomial.PolyModF(
-                            Polynomial.SumPoly(
-                                    Polynomial.MultPoly(pa, sb),
-                                    Polynomial.EscalarPoly(2, eb1)),
+                            Polynomial.PolySum(
+                                    Polynomial.PolyMult(pa, sb),
+                                    Polynomial.PolyEscalar(2, eb1)),
                             rwle.getF()),
                     rwle.getQ());
 

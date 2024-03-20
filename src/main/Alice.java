@@ -41,9 +41,9 @@ public class Alice {
             Polynomial ea = rwle.generateGauPol(stddev);
             Polynomial pa = Polynomial.PolyModInt(
                     Polynomial.PolyModF(
-                            Polynomial.SumPoly(
-                                    Polynomial.MultPoly(m, sa),
-                                    Polynomial.EscalarPoly(2, ea)),
+                            Polynomial.PolySum(
+                                    Polynomial.PolyMult(m, sa),
+                                    Polynomial.PolyEscalar(2, ea)),
                             rwle.getF()),
                     rwle.getQ());
 
@@ -57,9 +57,9 @@ public class Alice {
 
             Polynomial Ka = Polynomial.PolyModInt(
                     Polynomial.PolyModF(
-                            Polynomial.SumPoly(
-                                    Polynomial.MultPoly(sa, pb),
-                                    Polynomial.EscalarPoly(2, ea1)),
+                            Polynomial.PolySum(
+                                    Polynomial.PolyMult(sa, pb),
+                                    Polynomial.PolyEscalar(2, ea1)),
                             rwle.getF()),
                     rwle.getQ());
             Polynomial SKa = rwle.extractor(Ka, oKb);

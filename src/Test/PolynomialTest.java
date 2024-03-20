@@ -58,7 +58,28 @@ public class PolynomialTest {
         coef_result[1] = 5;
         coef_result[2] = 2;
         coef_result[3] = 2;
-        assertEquals(new Polynomial(coef_result), Polynomial.SumPoly(p, q));
+        assertEquals(new Polynomial(coef_result), Polynomial.PolySum(p, q));
+    }
+
+    @Test
+    public void testSumPolZero() {
+        long[] coef_1 = new long[4];
+
+        long[] coef_2 = new long[4];
+        coef_2[0] = -1;
+        coef_2[1] = -1;
+        coef_2[2] = 0;
+        coef_2[3] = -8;
+
+        Polynomial p = new Polynomial(coef_1);
+        Polynomial q = new Polynomial(coef_2);
+
+        long[] coef_result = new long[4];
+        coef_result[0] = -1;
+        coef_result[1] = -1;
+        coef_result[2] = 0;
+        coef_result[3] = -8;
+        assertEquals(new Polynomial(coef_result), Polynomial.PolySum(p, q));
     }
 
     @Test
@@ -82,7 +103,7 @@ public class PolynomialTest {
         coef_result[2] = 8;
         coef_result[3] = 22;
         coef_result[4] = 8;
-        assertEquals(new Polynomial(coef_result), Polynomial.MultPoly(p, q));
+        assertEquals(new Polynomial(coef_result), Polynomial.PolyMult(p, q));
     }
 
     @Test
@@ -101,7 +122,7 @@ public class PolynomialTest {
         coef_result[1] = 24;
         coef_result[2] = 8;
         coef_result[3] = -8;
-        assertEquals(new Polynomial(coef_result), Polynomial.EscalarPoly(q, p));
+        assertEquals(new Polynomial(coef_result), Polynomial.PolyEscalar(q, p));
     }
 
     @Test
@@ -174,6 +195,28 @@ public class PolynomialTest {
 
         assertEquals(Polynomial.PolyModInt(Polynomial.PolyModF(Polynomial.PolyModInt(p, a), q), a),
                 Polynomial.PolyModInt(Polynomial.PolyModF(p, q), a));
+    }
+
+    @Test
+    public void testInv() {
+        long[] coef_1 = new long[9];
+        coef_1[0] = 1;
+        coef_1[1] = 1;
+        coef_1[3] = 1;
+        coef_1[4] = 1;
+        coef_1[8] = 1;
+
+        long[] coef_2 = new long[7];
+        coef_2[0] = 1;
+        coef_2[1] = 1;
+        coef_2[4] = 1;
+        coef_2[6] = 1;
+
+        Polynomial p = new Polynomial(coef_1);
+        Polynomial q = new Polynomial(coef_2);
+        int a = 2;
+
+        assertEquals(new Polynomial(new long[] { 0, 1, 0, 1, 0, 0, 1, 1 }), Polynomial.PolyInvModF(q, p, a));
     }
 
     @Test

@@ -41,11 +41,11 @@ public class AliceNH {
 
             Polynomial pa = Polynomial.PolyModInt(
                     Polynomial.PolyModF(
-                            Polynomial.SumPoly(
-                                    Polynomial.MultPoly(m, sa),
+                            Polynomial.PolySum(
+                                    Polynomial.PolyMult(m, sa),
                                     ea),
                             nh.getF()),
-                    nh.getPrime());
+                    nh.getQ());
             byte[] paByte = nh.toByteArray(pa);
             byte[] message = new byte[paByte.length + seed.length];
             System.arraycopy(paByte, 0, message, 0, paByte.length);
@@ -71,11 +71,11 @@ public class AliceNH {
             }
             Polynomial Ka = Polynomial.PolyModInt(
                     Polynomial.PolyModF(
-                            Polynomial.MultPoly(sa, pb),
+                            Polynomial.PolyMult(sa, pb),
                             nh.getF()),
-                    nh.getPrime());
+                    nh.getQ());
 
-            int[] SK = nh.REC(Ka, hint);
+            int[] SK = nh.Rec(Ka, hint);
             byte[] K = nh.toByte(SK);
             MessageDigest ms = MessageDigest.getInstance("SHA3-256");
             byte[] Key = ms.digest(K);

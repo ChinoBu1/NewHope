@@ -1,7 +1,6 @@
 
 package main;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Locale;
@@ -17,27 +16,30 @@ public class NewHope {
     private final int N = 1024;
     private final float R = 4f;
     private final float[] G = { 0.5f, 0.5f, 0.5f, 0.5f };
+    int q;
+    int n;
     Random random;
-    int prime;
 
     public NewHope() {
-        long[] coef_f = new long[N + 1];
+        this.q = Q;
+        this.n = N;
+        long[] coef_f = new long[n + 1];
         coef_f[0] = 1;
-        Arrays.fill(coef_f, 1, N, 0);
-        coef_f[N] = 1;
+        Arrays.fill(coef_f, 1, n, 0);
+        coef_f[n] = 1;
         this.F = new Polynomial(coef_f);
-        this.prime = Q;
         // random = new Random(2024);
         random = new SecureRandom();
     }
 
-    public NewHope(int q) {
-        long[] coef_f = new long[N + 1];
+    public NewHope(int n, int q) {
+        this.q = q;
+        this.n = n;
+        long[] coef_f = new long[n + 1];
         coef_f[0] = 1;
-        Arrays.fill(coef_f, 1, N, 0);
-        coef_f[N] = 1;
+        Arrays.fill(coef_f, 1, n, 0);
+        coef_f[n] = 1;
         this.F = new Polynomial(coef_f);
-        this.prime = q;
         // random = new Random(2024);
         random = new SecureRandom();
     }
@@ -46,20 +48,24 @@ public class NewHope {
         return new Polynomial(this.F.GetCoef());
     }
 
-    public int getPrime() {
-        return this.prime;
+    public int getQ() {
+        return q;
     }
 
-    public int[] generate256Bits() {
-        int[] temp = new int[256];
-        for (int i = 0; i < 256; i++) {
+    public void setSeed(int seed) {
+        random.setSeed(seed);
+    }
+
+    public int[] generateBits(int n) {
+        int[] temp = new int[n];
+        for (int i = 0; i < n; i++) {
             temp[i] = random.nextInt(2);
         }
         return temp;
     }
 
     public byte[] generateSeed() {
-        int[] temp = generate256Bits();
+        int[] temp = generateBits(256);
         byte[] seed = new byte[32];
         for (int i = 0; i < 32; i += 1) {
             seed[i] = (byte) (temp[8 * i]
@@ -76,19 +82,19 @@ public class NewHope {
 
     public Polynomial parseSeed(byte[] seed) throws Exception {
         SHAKEDigest shake = new SHAKEDigest(128);
-        long[] coef = new long[1024];
+        long[] coef = new long[n];
         int last_coef = 0;
         shake.update(seed, 0, seed.length);
-        while (last_coef < 1024) {
+        while (last_coef < n) {
             byte[] hashSeed = new byte[2];
             shake.doOutput(hashSeed, 0, 2);
             int temp = ((hashSeed[0] & 0xFF)) |
                     ((hashSeed[1] & 0xFF) << 8);
-            if (temp < prime) {
+            if (temp < 5 * q) {
                 coef[last_coef] = temp;
                 last_coef++;
             }
-            if (last_coef >= 1024) {
+            if (last_coef >= n) {
                 break;
             }
         }
@@ -96,8 +102,8 @@ public class NewHope {
     }
 
     public Polynomial generateBinoPol() {
-        long[] coef = new long[this.N];
-        for (int i = 0; i < this.N; i++) {
+        long[] coef = new long[n];
+        for (int i = 0; i < n; i++) {
             long temp = 0;
             for (int j = 0; j < 16; j++) {
                 temp = temp + (random.nextInt(2) - random.nextInt(2));
@@ -108,24 +114,26 @@ public class NewHope {
     }
 
     public int[][] hint(Polynomial x) {
-        int[][] resp = new int[256][4];
+        int[][] resp = new int[n / 4][4];
+        long[] temp = new long[n];
+        System.arraycopy(x.GetCoef(), 0, temp, 0, x.GetCoef().length);
         for (int i = 0; i < resp.length; i++) {
             int b = random.nextInt(2);
             float[] paramHint = new float[] {
-                    R / Q * ((float) x.GetCoef()[i] + (float) .5f * b),
-                    R / Q * ((float) x.GetCoef()[i + 256] + (float) .5f * b),
-                    R / Q * ((float) x.GetCoef()[i + 512] + (float) .5f * b),
-                    R / Q * ((float) x.GetCoef()[i + 768] + (float) .5f * b)
+                    R / q * ((float) temp[i] + (float) .5f * b),
+                    R / q * ((float) temp[i + n / 4] + (float) .5f * b),
+                    R / q * ((float) temp[i + n / 2] + (float) .5f * b),
+                    R / q * ((float) temp[i + 3 * n / 4] + (float) .5f * b)
             };
             for (int j = 0; j < R; j++) {
-                resp[i][j] = ((CVP(paramHint)[j] % 4) + 4) % 4;
+                resp[i][j] = ((CVP(paramHint, false)[j] % 4) + 4) % 4;
             }
         }
 
         return resp;
     }
 
-    public int[] CVP(float[] x) {
+    public int[] CVP(float[] x, boolean log) {
         int[] v0 = new int[4];
         int[] v1 = new int[4];
         float norm = 0;
@@ -134,9 +142,11 @@ public class NewHope {
             v1[i] = Math.round(x[i] - G[i]);
             norm = norm + Math.abs(x[i] - v0[i]);
         }
-        logger.info(
-                String.format(Locale.US, "v0 = ( %d, %d, %d, %d) v1 = ( %d, %d, %d, %d)  ||x-v0|| = %f  ", v0[0], v0[1],
-                        v0[2], v0[3], v1[0], v1[1], v1[2], v1[3], norm));
+        if (log) {
+            logger.info(
+                    String.format(Locale.US, "v0 = ( %d, %d, %d, %d) v1 = ( %d, %d, %d, %d)  ||x-v0|| = %f  ",
+                            v0[0], v0[1], v0[2], v0[3], v1[0], v1[1], v1[2], v1[3], norm));
+        }
         if (norm < 1) {
             int[] resp = { (v0[0] - v0[3]),
                     (v0[1] - v0[3]),
@@ -154,13 +164,15 @@ public class NewHope {
     }
 
     public int[] Rec(Polynomial x, int[][] hint) {
-        int[] resp = new int[256];
+        int[] resp = new int[n / 4];
+        long[] temp = new long[n];
+        System.arraycopy(x.GetCoef(), 0, temp, 0, x.GetCoef().length);
         for (int i = 0; i < resp.length; i++) {
             float[] decodeParam = new float[] {
-                    (float) x.GetCoef()[i] / Q - .25f * (hint[i][0] + .5f * hint[i][3]),
-                    (float) x.GetCoef()[i + 256] / Q - .25f * (hint[i][1] + .5f * hint[i][3]),
-                    (float) x.GetCoef()[i + 512] / Q - .25f * (hint[i][2] + .5f * hint[i][3]),
-                    (float) x.GetCoef()[i + 768] / Q - hint[i][3] * .5f * .25f
+                    (float) temp[i] / q - .25f * (hint[i][0] + .5f * hint[i][3]),
+                    (float) temp[i + n / 4] / q - .25f * (hint[i][1] + .5f * hint[i][3]),
+                    (float) temp[i + n / 2] / q - .25f * (hint[i][2] + .5f * hint[i][3]),
+                    (float) temp[i + 3 * n / 4] / q - hint[i][3] * .5f * .25f
             };
             resp[i] = Decode(decodeParam, false);
         }
@@ -197,7 +209,7 @@ public class NewHope {
     }
 
     public Polynomial fromByteArray(byte[] bytes) {
-        long[] coef = new long[this.N];
+        long[] coef = new long[this.n];
         for (int i = 0; 8 * i + 7 < bytes.length; i++) {
             coef[i] = ((bytes[8 * i] & 0xFF)) |
                     ((bytes[8 * i + 1] & 0xFF) << 8) |
@@ -212,12 +224,12 @@ public class NewHope {
     }
 
     public byte[] toByte(Polynomial p) {
-        byte[] f = new byte[this.N / 8];
-        long[] temp = new long[this.N];
+        byte[] f = new byte[this.n / 8];
+        long[] temp = new long[this.n];
         for (int i = 0; i < p.GetCoef().length; i++) {
             temp[i] = p.GetCoef()[i];
         }
-        for (int i = 0; i < this.N / 8; i += 1) {
+        for (int i = 0; i < this.n / 8; i += 1) {
             f[i] = (byte) (temp[8 * i]
                     | temp[8 * i + 1] << 1
                     | temp[8 * i + 2] << 2
@@ -231,7 +243,7 @@ public class NewHope {
     }
 
     public byte[] toByte(int[] p) {
-        byte[] f = new byte[32];
+        byte[] f = new byte[n / 32];
         for (int i = 0; 8 * i + 7 < p.length; i += 1) {
             f[i] = (byte) (p[8 * i]
                     | p[8 * i + 1] << 1

@@ -14,34 +14,18 @@ public class mainNH {
                 logger.addHandler(fh);
                 logger.setUseParentHandlers(false);
                 NewHope nh;
-                int q;
-                float r;
-                switch (args.length) {
-                        case 0:
-                                nh = new NewHope();
-                                q = 12289;
-                                r = 4;
-                                break;
-                        case 1:
-                                q = Integer.parseInt(args[0]);
-                                r = 4;
-                                nh = new NewHope(q);
-                                break;
-                        case 2:
-                                q = Integer.parseInt(args[0]);
-                                nh = new NewHope(q);
-                                r = Integer.parseInt(args[1]);
-                                break;
-                        default:
-                                System.err.println("Argumetos erroneos");
-                                nh = new NewHope();
-                                q = 12289;
-                                r = 4;
-                                System.exit(0);
-                                break;
+                int q = 12289;
+                int n = 1024;
+                float r = 4;
+                if (args.length == 0)
+                        nh = new NewHope();
+                else {
+                        n = Integer.parseInt(args[0]);
+                        q = Integer.parseInt(args[1]);
+                        nh = new NewHope(n, q);
                 }
 
-                logger.info(String.format("Parametros: n = 1024, q = %d f(x) = " + nh.getF() + "\n\n", q));
+                logger.info(String.format("Parametros: n = %d, q = %d f(x) = " + nh.getF() + "\n\n", n, q));
                 long start = System.currentTimeMillis();
 
                 MessageDigest ms = MessageDigest.getInstance("SHA3-256");
@@ -57,11 +41,11 @@ public class mainNH {
 
                 Polynomial pa = Polynomial.PolyModInt(
                                 Polynomial.PolyModF(
-                                                Polynomial.SumPoly(
-                                                                Polynomial.MultPoly(m, sa),
+                                                Polynomial.PolySum(
+                                                                Polynomial.PolyMult(m, sa),
                                                                 ea),
                                                 nh.getF()),
-                                nh.getPrime());
+                                nh.getQ());
                 logger.info("pa: " + pa + "\n");
 
                 logger.info("\n");
@@ -73,60 +57,62 @@ public class mainNH {
                 logger.info("eb': " + eb1 + "\n");
                 Polynomial Kb = Polynomial.PolyModInt(
                                 Polynomial.PolyModF(
-                                                Polynomial.SumPoly(
-                                                                Polynomial.MultPoly(pa, sb),
+                                                Polynomial.PolySum(
+                                                                Polynomial.PolyMult(pa, sb),
                                                                 eb1),
                                                 nh.getF()),
-                                nh.getPrime());
+                                nh.getQ());
 
                 Polynomial eb = nh.generateBinoPol();
                 logger.info("eb: " + eb + "\n");
                 Polynomial pb = Polynomial.PolyModInt(
                                 Polynomial.PolyModF(
-                                                Polynomial.SumPoly(
-                                                                Polynomial.MultPoly(m, sb),
+                                                Polynomial.PolySum(
+                                                                Polynomial.PolyMult(m, sb),
                                                                 eb),
                                                 nh.getF()),
-                                nh.getPrime());
+                                nh.getQ());
                 logger.info("pb: " + pb + "\n");
 
                 Polynomial Ka = Polynomial.PolyModInt(
                                 Polynomial.PolyModF(
-                                                Polynomial.MultPoly(sa, pb),
+                                                Polynomial.PolyMult(sa, pb),
                                                 nh.getF()),
-                                nh.getPrime());
+                                nh.getQ());
                 logger.info("\n");
                 logger.info("Ka: " + Ka + "\n");
 
                 logger.info("Kb: " + Kb + "\n");
 
                 logger.info("\n \n");
-                int[] b = nh.generate256Bits();
+                int[] b = nh.generateBits(n / 4);
 
                 Polynomial adv = nh.generateBinoPol();
                 Polynomial er = nh.generateBinoPol();
                 Polynomial pr = Polynomial.PolyModInt(
                                 Polynomial.PolyModF(
-                                                Polynomial.SumPoly(
-                                                                Polynomial.MultPoly(m, adv),
+                                                Polynomial.PolySum(
+                                                                Polynomial.PolyMult(m, adv),
                                                                 er),
                                                 nh.getF()),
-                                nh.getPrime());
+                                nh.getQ());
                 Polynomial rival = Polynomial.PolyModInt(
                                 Polynomial.PolyModF(
-                                                Polynomial.MultPoly(sa, pr),
+                                                Polynomial.PolyMult(sb, pr),
                                                 nh.getF()),
-                                nh.getPrime());
-                int[] decodea = new int[256];
-                int[] decodeb = new int[256];
-                int[] decoder = new int[256];
+                                nh.getQ());
+                long finishGen = System.currentTimeMillis();
+                System.out.println((finishGen - start) + " milisegundos");
+                int[] decodea = new int[n / 4];
+                int[] decodeb = new int[n / 4];
+                int[] decoder = new int[n / 4];
                 for (int i = 0; i < b.length; i++) {
                         logger.info("Bit " + i + "\n");
                         float[] paramHint = new float[] {
                                         r / q * ((float) Kb.GetCoef()[i] + (float) .5f * b[i]),
-                                        r / q * ((float) Kb.GetCoef()[i + 256] + (float) .5f * b[i]),
-                                        r / q * ((float) Kb.GetCoef()[i + 512] + (float) .5f * b[i]),
-                                        r / q * ((float) Kb.GetCoef()[i + 768] + (float) .5f * b[i])
+                                        r / q * ((float) Kb.GetCoef()[i + n / 4] + (float) .5f * b[i]),
+                                        r / q * ((float) Kb.GetCoef()[i + n / 2] + (float) .5f * b[i]),
+                                        r / q * ((float) Kb.GetCoef()[i + 3 * n / 4] + (float) .5f * b[i])
                         };
                         logger.info(String.format(Locale.US,
                                         "Entrada CVP: b = %d  x = (%5f, %5f, %5f, %5f)\n", b[i],
@@ -134,7 +120,7 @@ public class mainNH {
                                         paramHint[1],
                                         paramHint[2],
                                         paramHint[3]));
-                        int[] CVP = nh.CVP(paramHint);
+                        int[] CVP = nh.CVP(paramHint, true);
                         float error1 = 0;
                         float errorinf = 0;
                         logger.info(String.format(Locale.US, "B*CVP = ( %f, %f, %f, %f) \n", (CVP[0] + 0.5f * CVP[3]),
@@ -150,14 +136,14 @@ public class mainNH {
                                         CVP[1], CVP[2],
                                         CVP[3], error1, errorinf));
                         long[] coef_a = new long[] { Ka.GetCoef()[i],
-                                        Ka.GetCoef()[i + 256],
-                                        Ka.GetCoef()[i + 512],
-                                        Ka.GetCoef()[i + 768]
+                                        Ka.GetCoef()[i + n / 4],
+                                        Ka.GetCoef()[i + n / 2],
+                                        Ka.GetCoef()[i + 3 * n / 4]
                         };
                         long[] coef_b = new long[] { Kb.GetCoef()[i],
-                                        Kb.GetCoef()[i + 256],
-                                        Kb.GetCoef()[i + 512],
-                                        Kb.GetCoef()[i + 768]
+                                        Kb.GetCoef()[i + n / 4],
+                                        Kb.GetCoef()[i + n / 2],
+                                        Kb.GetCoef()[i + 3 * n / 4]
                         };
                         logger.info("Alice:                                                 Bob:\n");
 
@@ -177,15 +163,15 @@ public class mainNH {
 
                         float[] decode_a = new float[] {
                                         (float) Ka.GetCoef()[i] / q - .25f * (CVP[0] + .5f * CVP[3]),
-                                        (float) Ka.GetCoef()[i + 256] / q - .25f * (CVP[1] + .5f * CVP[3]),
-                                        (float) Ka.GetCoef()[i + 512] / q - .25f * (CVP[2] + .5f * CVP[3]),
-                                        (float) Ka.GetCoef()[i + 768] / q - CVP[3] * .5f * .25f
+                                        (float) Ka.GetCoef()[i + n / 4] / q - .25f * (CVP[1] + .5f * CVP[3]),
+                                        (float) Ka.GetCoef()[i + n / 2] / q - .25f * (CVP[2] + .5f * CVP[3]),
+                                        (float) Ka.GetCoef()[i + 3 * n / 4] / q - CVP[3] * .5f * .25f
                         };
                         float[] decode_b = new float[] {
                                         (float) Kb.GetCoef()[i] / q - .25f * (CVP[0] + .5f * CVP[3]),
-                                        (float) Kb.GetCoef()[i + 256] / q - .25f * (CVP[1] + .5f * CVP[3]),
-                                        (float) Kb.GetCoef()[i + 512] / q - .25f * (CVP[2] + .5f * CVP[3]),
-                                        (float) Kb.GetCoef()[i + 768] / q - CVP[3] * .5f * .25f
+                                        (float) Kb.GetCoef()[i + n / 4] / q - .25f * (CVP[1] + .5f * CVP[3]),
+                                        (float) Kb.GetCoef()[i + n / 2] / q - .25f * (CVP[2] + .5f * CVP[3]),
+                                        (float) Kb.GetCoef()[i + 3 * n / 4] / q - CVP[3] * .5f * .25f
                         };
 
                         logger.info(String.format(Locale.US,
@@ -203,11 +189,11 @@ public class mainNH {
                         decoder[i] = nh.Decode(new float[] {
                                         (float) rival.GetCoef()[i] / q
                                                         - .25f * (CVP[0] + .5f * CVP[3]),
-                                        (float) rival.GetCoef()[i + 256] / q
+                                        (float) rival.GetCoef()[i + n / 4] / q
                                                         - .25f * (CVP[1] + .5f * CVP[3]),
-                                        (float) rival.GetCoef()[i + 512] / q
+                                        (float) rival.GetCoef()[i + n / 2] / q
                                                         - .25f * (CVP[2] + .5f * CVP[3]),
-                                        (float) rival.GetCoef()[i + 768] / q
+                                        (float) rival.GetCoef()[i + 3 * n / 4] / q
                                                         - CVP[3] * .5f * .25f },
                                         false);
                         logger.info(String.format(Locale.US,
@@ -241,17 +227,11 @@ public class mainNH {
                 logger.info("\n");
                 logger.info("\n");
 
-                int[][] testHint = nh.hint(Kb);
-                int[] testRecA = nh.Rec(Ka, testHint);
-
                 byte[] va = nh.toByte(decodea);
                 byte[] vb = nh.toByte(decodeb);
                 byte[] vr = nh.toByte(decoder);
-                byte[] testVa = nh.toByte(testRecA);
 
                 byte[] SKa = ms.digest(va);
-                ms.reset();
-                byte[] testSKa = ms.digest(testVa);
                 ms.reset();
                 byte[] SKb = ms.digest(vb);
                 ms.reset();
@@ -260,7 +240,7 @@ public class mainNH {
                 long finish = System.currentTimeMillis();
                 System.out.println((finish - start) + " milisegundos");
                 System.out.println();
-                if (Arrays.equals(SKa, SKb) && !Arrays.equals(SKa, SKr) && Arrays.equals(SKb, testSKa)) {
+                if (Arrays.equals(SKa, SKb) && !Arrays.equals(SKa, SKr)) {
                         System.out.println("Succes");
                 } else {
 

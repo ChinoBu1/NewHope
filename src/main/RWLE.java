@@ -78,8 +78,8 @@ public class RWLE {
     public Polynomial extractor(Polynomial a, Polynomial hint) {
         return Polynomial.PolyModInt(
                 Polynomial.PolyModInt(
-                        Polynomial.SumPoly(a,
-                                Polynomial.EscalarPoly((q - 1) / 2, hint)),
+                        Polynomial.PolySum(a,
+                                Polynomial.PolyEscalar((q - 1) / 2, hint)),
                         q),
                 2);
     }

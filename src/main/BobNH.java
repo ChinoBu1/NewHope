@@ -5,10 +5,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.util.Base64;
 
@@ -24,12 +20,11 @@ public class BobNH {
     static final int PORT = 8888;
 
     public static void main(String[] args) throws Exception {
-        int intentos = 0;
         long start = System.currentTimeMillis();
         if (args.length < 1) {
             conection = new Socket(InetAddress.getLocalHost(), PORT);
         } else {
-            conection = new Socket(InetAddress.getLocalHost(), Integer.parseInt(args[0]));
+            conection = new Socket(InetAddress.getByName(args[0]), Integer.parseInt(args[1]));
         }
 
         nh = new NewHope();
@@ -51,24 +46,24 @@ public class BobNH {
 
         Polynomial Kb = Polynomial.PolyModInt(
                 Polynomial.PolyModF(
-                        Polynomial.SumPoly(
-                                Polynomial.MultPoly(pa, sb),
+                        Polynomial.PolySum(
+                                Polynomial.PolyMult(pa, sb),
                                 eb1),
                         nh.getF()),
-                nh.getPrime());
+                nh.getQ());
 
         Polynomial m = nh.parseSeed(seed);
 
         Polynomial eb = nh.generateBinoPol();
         Polynomial pb = Polynomial.PolyModInt(
                 Polynomial.PolyModF(
-                        Polynomial.SumPoly(
-                                Polynomial.MultPoly(m, sb),
+                        Polynomial.PolySum(
+                                Polynomial.PolyMult(m, sb),
                                 eb),
                         nh.getF()),
-                nh.getPrime());
-        int[] b = nh.generate256Bits();
-        int[][] hint = nh.hint(Kb, b);
+                nh.getQ());
+        int[][] hint = nh.hint(Kb);
+        System.out.println(pb);
 
         byte[] hintByte = new byte[hint.length * 4 * 4];
         for (int i = 0; i < hint.length; i++) {
@@ -88,7 +83,7 @@ public class BobNH {
 
         sendData(message);
 
-        int[] SK = nh.REC(Kb, hint);
+        int[] SK = nh.Rec(Kb, hint);
         byte[] K = nh.toByte(SK);
         MessageDigest ms = MessageDigest.getInstance("SHA3-256");
         byte[] Key = ms.digest(K);
@@ -105,13 +100,11 @@ public class BobNH {
             decrypt = cipher.doFinal(decode);
             System.out.println(new String(decrypt));
         } catch (Exception e) {
-            intentos++;
             System.out.println("Fail");
         }
         if ("Test".equals(new String(decrypt))) {
 
             long finish = System.currentTimeMillis();
-            intentos++;
             System.out.println("Succes in " + (finish - start) + " ms");
         }
 

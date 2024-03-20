@@ -4,6 +4,7 @@
 # Log file
 *.log
 *.txt
+*.lck
 
 # BlueJ files
 *.ctxt
@@ -28,3 +29,5 @@ replay_pid*
 #VS code preferences
 .vscode/
 *.py
+
+docker/

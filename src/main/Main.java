@@ -29,9 +29,9 @@ class Main {
                         Polynomial ea = prueba.generateGauPol(stddev);
                         Polynomial pa = Polynomial.PolyModInt(
                                         Polynomial.PolyModF(
-                                                        Polynomial.SumPoly(
-                                                                        Polynomial.MultPoly(m, sa),
-                                                                        Polynomial.EscalarPoly(2, ea)),
+                                                        Polynomial.PolySum(
+                                                                        Polynomial.PolyMult(m, sa),
+                                                                        Polynomial.PolyEscalar(2, ea)),
                                                         f),
                                         q);
 
@@ -40,9 +40,9 @@ class Main {
                         Polynomial eb1 = prueba.generateGauPol(stddev);
                         Polynomial Kb = Polynomial.PolyModInt(
                                         Polynomial.PolyModF(
-                                                        Polynomial.SumPoly(
-                                                                        Polynomial.MultPoly(pa, sb),
-                                                                        Polynomial.EscalarPoly(2, eb1)),
+                                                        Polynomial.PolySum(
+                                                                        Polynomial.PolyMult(pa, sb),
+                                                                        Polynomial.PolyEscalar(2, eb1)),
                                                         f),
                                         q);
 
@@ -50,9 +50,9 @@ class Main {
 
                         Polynomial pb = Polynomial.PolyModInt(
                                         Polynomial.PolyModF(
-                                                        Polynomial.SumPoly(
-                                                                        Polynomial.MultPoly(m, sb),
-                                                                        Polynomial.EscalarPoly(2, eb)),
+                                                        Polynomial.PolySum(
+                                                                        Polynomial.PolyMult(m, sb),
+                                                                        Polynomial.PolyEscalar(2, eb)),
                                                         f),
                                         q);
 
@@ -61,9 +61,9 @@ class Main {
                         Polynomial ea1 = prueba.generateGauPol(stddev);
                         Polynomial Ka = Polynomial.PolyModInt(
                                         Polynomial.PolyModF(
-                                                        Polynomial.SumPoly(
-                                                                        Polynomial.MultPoly(sa, pb),
-                                                                        Polynomial.EscalarPoly(2, ea1)),
+                                                        Polynomial.PolySum(
+                                                                        Polynomial.PolyMult(sa, pb),
+                                                                        Polynomial.PolyEscalar(2, ea1)),
 
                                                         f),
                                         q);
