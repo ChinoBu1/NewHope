@@ -19,8 +19,9 @@ public class PolynomialTest {
         Arrays.fill(coef_1, 1);
         coef_1[3] = 0;
 
-        long[] coef_2 = new long[3];
+        long[] coef_2 = new long[4];
         Arrays.fill(coef_2, 1);
+        coef_2[3] = 0;
 
         Polynomial p = new Polynomial(coef_1);
         Polynomial q = new Polynomial(coef_2);
@@ -296,6 +297,8 @@ public class PolynomialTest {
         Polynomial p = new Polynomial(coef_1);
         byte[] q = test.toByteArray(p);
         Polynomial reconstruc = test.fromByteArray(q);
+        System.out.println(p);
+        System.out.println(reconstruc);
 
         assertEquals(p, reconstruc);
     }

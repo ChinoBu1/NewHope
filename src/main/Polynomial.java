@@ -12,14 +12,13 @@ public class Polynomial {
         this.grado = -1;
     }
 
-    public Polynomial(long[] coef_f) {
-        int i = coef_f.length;
-        while (i > 1 && coef_f[i - 1] == 0) {
+    public Polynomial(long[] coef) {
+        int i = coef.length;
+        while (i > 1 && coef[i - 1] == 0) {
             i--;
         }
-        this.coef = new long[i];
-        System.arraycopy(coef_f, 0, this.coef, 0, i);
-        this.grado = this.coef.length - 1;
+        this.coef = coef;
+        this.grado = i - 1;
     }
 
     public long[] GetCoef() {
