@@ -16,7 +16,6 @@ public class mainNHPrimos {
                 NewHope nh;
                 int q = 12289;
                 int n = 1024;
-                float r = 4;
                 if (args.length == 0)
                         nh = new NewHope();
                 else {
@@ -24,8 +23,8 @@ public class mainNHPrimos {
                         q = Integer.parseInt(args[1]);
                         nh = new NewHope(n, q);
                 }
+                logger.info(String.format("primo;tiempo\n"));
                 for (int p : NewHope.primos) {
-                        logger.info(String.format("Parametros: n = %d, q = %d f(x) = " + nh.getF() + "\n\n", n, p));
                         long start = System.currentTimeMillis();
 
                         byte[] seed = nh.generateSeed();
@@ -72,7 +71,7 @@ public class mainNHPrimos {
                         byte[] SKa = nh.toByte(nh.Rec(Ka, hint));
 
                         long finish = System.currentTimeMillis();
-                        logger.info("" + (finish - start));
+                        logger.info(p + ";" + (finish - start) + "\n");
                         if (Arrays.equals(SKa, SKb)) {
                                 System.out.println("Succes");
                         } else {

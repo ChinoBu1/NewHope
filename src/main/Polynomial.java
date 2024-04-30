@@ -9,7 +9,7 @@ public class Polynomial {
     public Polynomial() {
         this.coef = new long[1];
         this.coef[0] = 0;
-        this.grado = -1;
+        this.grado = 0;
     }
 
     public Polynomial(long[] coef) {
