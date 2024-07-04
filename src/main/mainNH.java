@@ -162,16 +162,16 @@ public class mainNH {
                         }
 
                         float[] decode_a = new float[] {
-                                        (float) Ka.GetCoef()[i] / q - .25f * (CVP[0] + .5f * CVP[3]),
-                                        (float) Ka.GetCoef()[i + n / 4] / q - .25f * (CVP[1] + .5f * CVP[3]),
-                                        (float) Ka.GetCoef()[i + n / 2] / q - .25f * (CVP[2] + .5f * CVP[3]),
-                                        (float) Ka.GetCoef()[i + 3 * n / 4] / q - CVP[3] * .5f * .25f
+                                        (float) coef_a[0] / q - .25f * (CVP[0] + .5f * CVP[3]),
+                                        (float) coef_a[1] / q - .25f * (CVP[1] + .5f * CVP[3]),
+                                        (float) coef_a[2] / q - .25f * (CVP[2] + .5f * CVP[3]),
+                                        (float) coef_a[3] / q - CVP[3] * .5f * .25f
                         };
                         float[] decode_b = new float[] {
-                                        (float) Kb.GetCoef()[i] / q - .25f * (CVP[0] + .5f * CVP[3]),
-                                        (float) Kb.GetCoef()[i + n / 4] / q - .25f * (CVP[1] + .5f * CVP[3]),
-                                        (float) Kb.GetCoef()[i + n / 2] / q - .25f * (CVP[2] + .5f * CVP[3]),
-                                        (float) Kb.GetCoef()[i + 3 * n / 4] / q - CVP[3] * .5f * .25f
+                                        (float) coef_b[0] / q - .25f * (CVP[0] + .5f * CVP[3]),
+                                        (float) coef_b[1] / q - .25f * (CVP[1] + .5f * CVP[3]),
+                                        (float) coef_b[2] / q - .25f * (CVP[2] + .5f * CVP[3]),
+                                        (float) coef_b[3] / q - CVP[3] * .5f * .25f
                         };
 
                         logger.info(String.format(Locale.US,
@@ -242,6 +242,7 @@ public class mainNH {
                 System.out.println();
                 if (Arrays.equals(SKa, SKb) && !Arrays.equals(SKa, SKr)) {
                         System.out.println("Succes");
+
                 } else {
 
                         System.out.println("Fail");

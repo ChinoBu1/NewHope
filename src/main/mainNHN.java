@@ -3,27 +3,24 @@ package main;
 import java.util.Arrays;
 import java.util.logging.*;
 
-public class mainNHPrimos {
+public class mainNHN {
 
         public static void main(String[] args) throws Exception {
-                Logger logger = Logger.getLogger("mainNHPrimos");
-                FileHandler fh = new FileHandler("pTime2.log");
+                Logger logger = Logger.getLogger("mainNHN");
+                FileHandler fh = new FileHandler("nTime4.log");
                 fh.setFormatter(new myformatter());
                 logger.addHandler(fh);
                 logger.setUseParentHandlers(false);
                 NewHope nh;
-                int q = 12289;
                 int n = 1024;
                 if (args.length == 0)
                         nh = new NewHope();
                 else {
                         n = Integer.parseInt(args[0]);
-                        q = Integer.parseInt(args[1]);
-                        nh = new NewHope(n, q);
                 }
                 logger.info(String.format("primo;tiempo\n"));
-                for (int p : NewHope.primos) {
-                        nh = new NewHope(n, p);
+                for (int i = 8; i <= 256; i += 8) {
+                        nh = new NewHope(i * 4, 12289);
                         long start = System.currentTimeMillis();
 
                         byte[] seed = nh.generateSeed();
@@ -70,7 +67,7 @@ public class mainNHPrimos {
                         byte[] SKa = nh.toByte(nh.Rec(Ka, hint));
 
                         long finish = System.currentTimeMillis();
-                        logger.info(p + ";" + (finish - start) + "\n");
+                        logger.info(i + ";" + (finish - start) + "\n");
                         if (Arrays.equals(SKa, SKb)) {
                                 System.out.println("Succes");
                         } else {

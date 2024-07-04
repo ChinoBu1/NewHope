@@ -2,12 +2,13 @@ package main;
 
 import java.util.Arrays;
 import java.util.logging.*;
+import java.time.*;
 
-public class mainNHPrimos {
+public class mainNHTimes {
 
         public static void main(String[] args) throws Exception {
-                Logger logger = Logger.getLogger("mainNHPrimos");
-                FileHandler fh = new FileHandler("pTime2.log");
+                Logger logger = Logger.getLogger("mainNHTimes");
+                FileHandler fh = new FileHandler("Succes.log");
                 fh.setFormatter(new myformatter());
                 logger.addHandler(fh);
                 logger.setUseParentHandlers(false);
@@ -21,11 +22,9 @@ public class mainNHPrimos {
                         q = Integer.parseInt(args[1]);
                         nh = new NewHope(n, q);
                 }
-                logger.info(String.format("primo;tiempo\n"));
-                for (int p : NewHope.primos) {
-                        nh = new NewHope(n, p);
-                        long start = System.currentTimeMillis();
-
+                double Succes = 0;
+                logger.info(String.format("Aciertos;\tTotal\n"));
+                for (int p = 0; p < 1_000_000; p++) {
                         byte[] seed = nh.generateSeed();
                         Polynomial m = nh.parseSeed(seed);
                         Polynomial sa = nh.generateBinoPol();
@@ -69,14 +68,14 @@ public class mainNHPrimos {
 
                         byte[] SKa = nh.toByte(nh.Rec(Ka, hint));
 
-                        long finish = System.currentTimeMillis();
-                        logger.info(p + ";" + (finish - start) + "\n");
                         if (Arrays.equals(SKa, SKb)) {
-                                System.out.println("Succes");
-                        } else {
-
-                                System.out.println("Fail");
+                                Succes++;
+                        }
+                        if (p % 1_000 == 0) {
+                                System.out.println(p);
+                                System.out.println(LocalTime.now());
                         }
                 }
+                logger.info(String.format(Succes + "\t" + 1_000_000));
         }
 }

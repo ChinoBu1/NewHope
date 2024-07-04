@@ -1,7 +1,7 @@
 package main;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+// import java.nio.file.Path;
+// import java.nio.file.Paths;
 
 class Main {
         public static void main(String[] args) throws Exception {
@@ -14,7 +14,7 @@ class Main {
                 Polynomial f = prueba.getF();
                 System.out.println(f);
 
-                Path path = Paths.get("intentos.txt");
+                // Path path = Paths.get("intentos.txt");
 
                 // for (int i = 0; i < 10000; i++) {
 
